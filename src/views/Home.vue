@@ -30,9 +30,15 @@ let update_timer = null;
 function initGame() {
   game_canvas.value.width = dimensions.x;
   game_canvas.value.height = dimensions.y;
+  game_canvas.value.addEventListener('click', canvasClicked);
   ctx = game_canvas.value.getContext('2d');
   update();
   draw();
+}
+
+function canvasClicked(event) {
+  console.log(event);
+  actor.location = new Point(event.layerX, event.layerY);
 }
 
 function update() {
