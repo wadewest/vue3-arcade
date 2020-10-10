@@ -32,7 +32,6 @@ export default class ScreenActor {
       this.radius, 0, 2*Math.PI, false);
     ctx.fillStyle = 'white';
     ctx.fill();
-    ctx.stroke();
   }
 
   isInBounds() {
