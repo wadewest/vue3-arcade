@@ -1,5 +1,6 @@
 <template>
-  <div class="home">
+  <div ref="game_container" class="home game-content" >
+    <div class="overlay">Score: {{score}}</div>
     <canvas ref="game_canvas" />
   </div>
 </template>
@@ -9,7 +10,7 @@ import Point from '@/models/Point';
 import Rect from '@/models/Rect';
 import ScreenActor from '@/models/ScreenActor';
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 export default {
   name: 'Home',
@@ -17,7 +18,9 @@ export default {
   },
 };
 
+export const game_container = ref(null);
 export const game_canvas = ref(null);
+export const score = ref(0);
 
 const screen_rect = new Rect(0, 0, 640, 480);
 const full_stop = new Point(0, 0);
@@ -33,10 +36,14 @@ let update_timer = null;
 function initGame() {
   game_canvas.value.width = screen_rect.width;
   game_canvas.value.height = screen_rect.height;
-  game_canvas.value.addEventListener('click', canvasClicked);
+  game_container.value.addEventListener('click', canvasClicked);
   ctx = game_canvas.value.getContext('2d');
   update();
   draw();
+}
+
+function tearDown() {
+  game_container.value.removeEventListener('click', canvasClicked);
 }
 
 function canvasClicked(event) {
@@ -66,10 +73,24 @@ function draw() {
 }
 
 onMounted(initGame);
+onBeforeUnmount(tearDown);
 </script>
 
 <style scoped lang="scss">
+.game-content {
+  width: fit-content;
+  margin: 0 auto;
+  user-select: none;
+}
+
 canvas {
   background-color: black;
+}
+
+.overlay {
+  cursor: default;
+  position: fixed;
+  color: white;
+  margin: 0.2rem;
 }
 </style>
