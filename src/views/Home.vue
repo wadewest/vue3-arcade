@@ -19,17 +19,20 @@ export default {
 
 export const game_canvas = ref(null);
 
+const screen_rect = new Rect(0, 0, 640, 480);
 const full_stop = new Point(0, 0);
+const actors = [];
+const player = new ScreenActor(screen_rect.midpoint(), full_stop, 20, screen_rect);
+actors[0] = [player];
+actors[1] = []; // projectiles
 
 let ctx: null = null;
-let dimensions = new Point(640, 480);
-let actor = new ScreenActor( dimensions.midpoint(), full_stop, 20);
 let animation_id = null;
 let update_timer = null;
 
 function initGame() {
-  game_canvas.value.width = dimensions.x;
-  game_canvas.value.height = dimensions.y;
+  game_canvas.value.width = screen_rect.width;
+  game_canvas.value.height = screen_rect.height;
   game_canvas.value.addEventListener('click', canvasClicked);
   ctx = game_canvas.value.getContext('2d');
   update();
@@ -37,18 +40,28 @@ function initGame() {
 }
 
 function canvasClicked(event) {
-  console.log(event);
-  actor.location = new Point(event.layerX, event.layerY);
+  let atan2 = Math.atan2( 
+    player.location.x - event.layerX,
+    player.location.y - event.layerY
+  );
+  let x = -Math.sin(atan2);
+  let y = -Math.cos(atan2);
+  actors[1].push(new ScreenActor(screen_rect.midpoint(), new Point(x, y), 5, screen_rect));
 }
 
 function update() {
-  actor.update();
-  update_timer = setTimeout(update, 0.0001);
+  actors.flat().forEach(actor => actor.update());
+  for(let i = 0; i < actors.length; i++) {
+    actors[i] = actors[i].filter(actor => {
+      return actor.status !== 'dead'
+    });
+  }
+  update_timer = setTimeout(update, 0.1);
 }
 
 function draw() {
   ctx.clearRect(0, 0, game_canvas.value.width, game_canvas.value.height);
-  actor.draw(ctx);
+  actors.flat().forEach(actor => actor.draw(ctx));
   animation_id = requestAnimationFrame(draw);
 }
 

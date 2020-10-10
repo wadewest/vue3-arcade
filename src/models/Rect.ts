@@ -1,3 +1,4 @@
+import Point from '@/models/Point';
 
 export default class Rect {
   x: number;
@@ -10,5 +11,13 @@ export default class Rect {
     this.width = width;
     this.height = height;
   }
+
+  midpoint() {
+    return new Point(
+      this.x + (this.width/2),
+      this.y + (this.height/2)
+    );
+  }
+
 }
 
