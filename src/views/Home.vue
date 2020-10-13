@@ -66,12 +66,12 @@ function canvasClicked(event) {
 
 function update() {
   actors.flat().forEach(actor => actor.update());
+  detect_collisons();
   for(let i = 0; i < actors.length; i++) {
     actors[i] = actors[i].filter(actor => {
       return actor.status !== 'dead'
     });
   }
-  detect_collisons();
   update_timer = setTimeout(update, 0.1);
 }
 
@@ -80,7 +80,7 @@ function detect_collisons() {
     actors[2].forEach( enemy => {
       if( projectile.location.distance_to(enemy.location) - projectile.radius - enemy.radius <= 0 ) {
         projectile.status = 'dead';
-        enemy .status = 'dead';
+        enemy.status = 'dead';
         score.value += 100;
       }
     })
