@@ -46,12 +46,12 @@ export default class ScreenActor {
     )
   }
 
-  move_to(p: Point): this {
+  move_to(p: Point, speed: number = 1): this {
     let atan2 = Math.atan2( 
       this.location.x - p.x,
       this.location.y - p.y
     );
-    this.velocity = new Point(-Math.sin(atan2)/10, -Math.cos(atan2)/10);
+    this.velocity = new Point(-Math.sin(atan2)*speed, -Math.cos(atan2)*speed);
     return this;
   }
 

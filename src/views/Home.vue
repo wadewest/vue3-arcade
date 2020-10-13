@@ -46,17 +46,22 @@ function initGame() {
 }
 
 function tearDown() {
+  if(update_timer) clearTimeout(update_timer);
+  if(spawn_timer) clearTimeout(spawn_timer);
+  if(animation_id) cancelAnimationFrame(animation_id);
   game_container.value.removeEventListener('click', canvasClicked);
 }
 
 function canvasClicked(event) {
-  let atan2 = Math.atan2( 
-    player.location.x - event.layerX,
-    player.location.y - event.layerY
+  if(actors[1].length >= 5) return;
+  actors[1].push(
+    new ScreenActor(
+      screen_rect.midpoint(), 
+      new Point(0, 0), 
+      5, 
+      screen_rect
+    ).move_to(new Point(event.layerX, event.layerY), 1.5)
   );
-  let x = -Math.sin(atan2);
-  let y = -Math.cos(atan2);
-  actors[1].push(new ScreenActor(screen_rect.midpoint(), new Point(x, y), 5, screen_rect));
 }
 
 function update() {
@@ -66,7 +71,20 @@ function update() {
       return actor.status !== 'dead'
     });
   }
+  detect_collisons();
   update_timer = setTimeout(update, 0.1);
+}
+
+function detect_collisons() {
+  actors[1].forEach( projectile => {
+    actors[2].forEach( enemy => {
+      if( projectile.location.distance_to(enemy.location) - projectile.radius - enemy.radius <= 0 ) {
+        projectile.status = 'dead';
+        enemy .status = 'dead';
+        score.value += 100;
+      }
+    })
+  })
 }
 
 function draw() {
@@ -83,13 +101,14 @@ function start_spawner(): void {
 function create_enemy(): void {
   if(actors[2].length >= 50) return;
   let radius = Math.round(Math.random()*15) + 5
+  let speed = Math.random()*0.4 + 0.1;
   actors[2].push(
     new ScreenActor(
       screen_rect.midpoint(), 
       new Point(0,0), 
       radius, 
       screen_rect.grow(radius*4, radius*4)
-    ).teleport_to_random_border_location().move_to(player.location)
+    ).teleport_to_random_border_location().move_to(player.location, speed)
   );
   start_spawner();
 }
