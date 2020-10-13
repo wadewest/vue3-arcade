@@ -1,6 +1,9 @@
 <template>
   <div ref="game_container" class="home game-content" >
-    <div class="overlay">Score: {{score}}</div>
+    <div class="overlay">
+      <div>Health: {{health}}</div>
+      <div>Score: {{score}}</div>
+    </div>
     <canvas ref="game_canvas" />
   </div>
 </template>
@@ -20,6 +23,7 @@ export default {
 
 export const game_container = ref(null);
 export const game_canvas = ref(null);
+export const health = ref(100);
 export const score = ref(0);
 
 const screen_rect = new Rect(0, 0, 640, 480);
@@ -76,6 +80,12 @@ function update() {
 }
 
 function detect_collisons() {
+  actors[2].forEach( enemy => {
+      if( player.location.distance_to(enemy.location) - player.radius - enemy.radius <= 0 ) {
+        health.value -= 5;
+        enemy.status = 'dead';
+      }
+  });
   actors[1].forEach( projectile => {
     actors[2].forEach( enemy => {
       if( projectile.location.distance_to(enemy.location) - projectile.radius - enemy.radius <= 0 ) {
@@ -129,6 +139,7 @@ canvas {
 }
 
 .overlay {
+  text-align: left;
   cursor: default;
   position: fixed;
   color: white;
