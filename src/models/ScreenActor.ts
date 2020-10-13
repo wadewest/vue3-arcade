@@ -36,14 +36,46 @@ export default class ScreenActor {
 
   isInBounds() {
     return (
-      this.location.x < this.bounds.x + this.bounds.width
+      this.location.x <= this.bounds.x + this.bounds.width
     ) && (
-      this.location.y < this.bounds.y + this.bounds.height
+      this.location.y <= this.bounds.y + this.bounds.height
     ) && (
-      this.location.x - this.radius > this.bounds.x
+      this.location.x - this.radius >= this.bounds.x
     ) && (
-      this.location.y - this.radius > this.bounds.y
+      this.location.y - this.radius >= this.bounds.y
     )
+  }
+
+  move_to(p: Point): this {
+    let atan2 = Math.atan2( 
+      this.location.x - p.x,
+      this.location.y - p.y
+    );
+    this.velocity = new Point(-Math.sin(atan2)/10, -Math.cos(atan2)/10);
+    return this;
+  }
+
+  teleport_to_random_border_location(): this {
+    let side = Math.floor(Math.random()*4);
+    switch(side) {
+      case 0: // top
+        this.location.x = this.bounds.x + Math.random()*(this.bounds.width-this.radius*2) - this.radius;
+        this.location.y = this.bounds.y + this.radius;
+        break;
+      case 1: // right
+        this.location.x = this.bounds.x + this.bounds.width - this.radius;
+        this.location.y = this.bounds.y + Math.random()*(this.bounds.height-this.radius*2) - this.radius;
+        break;
+      case 2: // bottom
+        this.location.x = this.bounds.x + Math.random()*(this.bounds.width-this.radius*2) - this.radius;
+        this.location.y = this.bounds.y + this.bounds.height - this.radius;
+        break;
+      case 3: // left
+        this.location.x = this.bounds.x + this.radius;
+        this.location.y = this.bounds.y + Math.random()*(this.bounds.height-this.radius*2) - this.radius;
+        break;
+    }
+    return this;
   }
 
 }

@@ -12,11 +12,23 @@ export default class Rect {
     this.height = height;
   }
 
-  midpoint() {
+  midpoint(): Point {
     return new Point(
       this.x + (this.width/2),
       this.y + (this.height/2)
     );
+  }
+
+  grow(width: number, height: number): Rect {
+    let new_x = this.x - (width/2);
+    let new_y = this.y - (height/2);
+    let new_width = this.width + width;
+    let new_height = this.height + height;
+    return new Rect(new_x, new_y, new_width, new_height);
+  }
+
+  shrink(width: number, height: number): Rect {
+    return this.grow(-width, -height);
   }
 
 }
