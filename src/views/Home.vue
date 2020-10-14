@@ -27,12 +27,12 @@ export const health = ref(100);
 export const score = ref(0);
 
 const screen_rect = new Rect(0, 0, 640, 480);
-const full_stop = new Point(0, 0);
 const actors = [];
-const player = new ScreenActor(screen_rect.midpoint(), full_stop, 20, screen_rect);
+const player = new ScreenActor(screen_rect.midpoint(), null, 20, screen_rect);
 actors[0] = [player];
 actors[1] = []; // projectiles
 actors[2] = []; // enemies
+actors[3] = []; // particles
 
 let ctx: null = null;
 let animation_id = null;
@@ -81,26 +81,50 @@ function update() {
 
 function detect_collisons() {
   actors[2].forEach( enemy => {
-      if( player.location.distance_to(enemy.location) - player.radius - enemy.radius <= 0 ) {
-        health.value -= 5;
-        enemy.status = 'dead';
-      }
-  });
-  actors[1].forEach( projectile => {
-    actors[2].forEach( enemy => {
+    if( player.location.distance_to(enemy.location) - player.radius - enemy.radius <= 0 ) {
+      health.value -= 5;
+      enemy.status = 'dead';
+    }
+    actors[1].forEach( projectile => {
       if( projectile.location.distance_to(enemy.location) - projectile.radius - enemy.radius <= 0 ) {
+        make_explosion(projectile.location);
+        make_explosion(enemy.location);
         projectile.status = 'dead';
         enemy.status = 'dead';
         score.value += 100;
       }
-    })
-  })
+    });
+  });
 }
 
 function draw() {
   ctx.clearRect(0, 0, game_canvas.value.width, game_canvas.value.height);
   actors.flat().forEach(actor => actor.draw(ctx));
   animation_id = requestAnimationFrame(draw);
+}
+
+function make_explosion(center: Point): void {
+  const particle_count = 7;
+  const bounds_size = 100;
+  const bounds = new Rect(
+    center.x - bounds_size/2, 
+    center.y - bounds_size/2, 
+    bounds_size,
+    bounds_size
+  );
+  for(let i = 0; i < particle_count; i++) {
+    actors[3].push(
+      new ScreenActor(new Point(center.x, center.y), null, 1, bounds).move_to(
+        new Point(
+          //bounds.x + Math.random()*bounds.width,
+          //bounds.y + Math.random()*bounds.height
+          Math.random()*screen_rect.width,
+          Math.random()*screen_rect.height
+        ),
+        0.1
+      )
+    );
+  }
 }
 
 function start_spawner(): void {

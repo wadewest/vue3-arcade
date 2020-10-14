@@ -16,7 +16,7 @@ export default class ScreenActor {
   }
 
   update(): void {
-    if(this.status === 'dead') return;
+    if(this.status === 'dead' || this.velocity === null) return;
     this.location.x += this.velocity.x;
     this.location.y += this.velocity.y;
     if(!this.isInBounds()) {
@@ -48,10 +48,13 @@ export default class ScreenActor {
 
   move_to(p: Point, speed: number = 1): this {
     let atan2 = Math.atan2( 
-      this.location.x - p.x,
-      this.location.y - p.y
+      p.x - this.location.x,
+      p.y - this.location.y
     );
-    this.velocity = new Point(-Math.sin(atan2)*speed, -Math.cos(atan2)*speed);
+    this.velocity = new Point(
+      Math.sin(atan2)*speed, 
+      Math.cos(atan2)*speed
+    );
     return this;
   }
 
