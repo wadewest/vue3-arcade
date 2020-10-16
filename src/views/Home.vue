@@ -97,12 +97,12 @@ function detect_collisons() {
     if( player.location.distance_to(enemy.location) - player.radius - enemy.radius <= 0 ) {
       health.value -= 5;
       enemy.status = 'dead';
-      make_explosion(enemy.location);
+      make_explosion(enemy.location, 50, 4);
     }
     actors[1].forEach( projectile => {
       if( projectile.location.distance_to(enemy.location) - projectile.radius - enemy.radius <= 0 ) {
-        make_explosion(projectile.location);
-        make_explosion(enemy.location);
+        make_explosion(projectile.location, 20, 1);
+        make_explosion(enemy.location, 75, 2);
         projectile.status = 'dead';
         enemy.status = 'dead';
         score.value += 100;
@@ -117,9 +117,8 @@ function draw() {
   animation_id = requestAnimationFrame(draw);
 }
 
-function make_explosion(center: Point): void {
-  const particle_count = 35;
-  const bounds_size = 200;
+function make_explosion(center: Point, particle_count: number = 100, particle_radius: number = 2): void {
+  const bounds_size = 100;
   const bounds = new Rect(
     center.x - bounds_size/2, 
     center.y - bounds_size/2, 
@@ -127,21 +126,22 @@ function make_explosion(center: Point): void {
     bounds_size
   );
   for(let i = 0; i < particle_count; i++) {
+    const new_bounds_size = bounds_size*(Math.random()*0.50);
     actors[3].push(
       new ScreenActor(
-        new Point(center.x, center.y), 
+        center.copy(),
         null, 
-        1, 
-        bounds.shrink(bounds_size*Math.random()*0.80, bounds_size*Math.random()*0.80))
-        .move_to(
-          new Point(
-            bounds.x + Math.random()*bounds.width,
-            bounds.y + Math.random()*bounds.height
-            //Math.random()*screen_rect.width,
-            //Math.random()*screen_rect.height
-          ),
-          0.1 + Math.random()*0.4
-        )
+        particle_radius, 
+        bounds.shrink(new_bounds_size, new_bounds_size)
+      ).move_to(
+        new Point(
+          bounds.x + Math.random()*bounds.width,
+          bounds.y + Math.random()*bounds.height
+          //Math.random()*screen_rect.width,
+          //Math.random()*screen_rect.height
+        ),
+        0.1 + Math.random()*0.4
+      )
     );
   }
 }
