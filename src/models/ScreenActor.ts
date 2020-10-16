@@ -25,7 +25,7 @@ export default class ScreenActor {
     }
   }
 
-  draw(ctx: any): void {
+  draw(ctx: CanvasRenderingContext2D): void {
     if(this.status === 'dead') return;
     ctx.beginPath();
     ctx.arc( this.location.x, this.location.y, 
