@@ -17,5 +17,9 @@ export default class Point {
     return Math.sqrt((x*x) + (y*y));
   }
 
+  copy(): Point {
+    return new Point(this.x, this.y);
+  }
+
 }
 
