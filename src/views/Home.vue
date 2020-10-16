@@ -63,7 +63,7 @@ function canvasClicked(event) {
   actors[1].push(
     new ScreenActor(
       screen_rect.midpoint(), 
-      new Point(0, 0), 
+      null,
       5, 
       screen_rect
     ).move_to(new Point(event.layerX, event.layerY), 1.5)
@@ -158,10 +158,12 @@ function create_enemy(): void {
   actors[2].push(
     new ScreenActor(
       screen_rect.midpoint(), 
-      new Point(0,0), 
+      null,
       radius, 
       screen_rect.grow(radius*4, radius*4)
-    ).teleport_to_random_border_location().move_to(player.location, speed)
+    )
+    .teleport_to_random_border_location()
+    .move_to(player.location, speed)
   );
   start_spawner();
 }
