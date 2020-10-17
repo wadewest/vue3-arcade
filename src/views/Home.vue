@@ -60,13 +60,15 @@ function tearDown() {
 
 function canvasClicked(event) {
   if(actors[1].length >= 5) return;
+  const clickX = event.pageX - game_canvas.value.offsetLeft;
+  const clickY = event.pageY - game_canvas.value.offsetTop;
   actors[1].push(
     new ScreenActor(
       screen_rect.midpoint(), 
       null,
       5, 
       screen_rect
-    ).move_to(new Point(event.layerX, event.layerY), 1.5)
+    ).move_to(new Point(clickX, clickY), 1.5)
   );
 }
 
@@ -126,7 +128,7 @@ function make_explosion(center: Point, particle_count: number = 100, particle_ra
     bounds_size
   );
   for(let i = 0; i < particle_count; i++) {
-    const new_bounds_size = bounds_size*(Math.random()*0.50);
+    const new_bounds_size = bounds_size - bounds_size*(0.80+Math.random()*0.30);
     actors[3].push(
       new ScreenActor(
         center.copy(),
