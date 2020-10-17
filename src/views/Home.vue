@@ -60,15 +60,13 @@ function tearDown() {
 
 function canvasClicked(event) {
   if(actors[1].length >= 5) return;
-  const clickX = event.pageX - game_canvas.value.offsetLeft;
-  const clickY = event.pageY - game_canvas.value.offsetTop;
   actors[1].push(
     new ScreenActor(
       screen_rect.midpoint(), 
       null,
       5, 
       screen_rect
-    ).move_to(new Point(clickX, clickY), 1.5)
+    ).move_to(new Point(event.layerX, event.layerY), 1.5)
   );
 }
 
@@ -182,6 +180,7 @@ onBeforeUnmount(tearDown);
 }
 
 canvas {
+  position: relative;
   background-color: black;
 }
 
