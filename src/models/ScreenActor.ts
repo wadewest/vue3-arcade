@@ -5,14 +5,14 @@ export default class ScreenActor {
   location: Point;
   velocity: Point|null;
   radius: number;
-  bounds: Rect;
+  bounding_box: Rect;
   status: string = 'active';
 
   constructor(location:Point, velocity:Point|null, radius:number, bounds:Rect) {
     this.location = location;
     this.velocity = velocity;
     this.radius = radius;
-    this.bounds = bounds;
+    this.bounding_box = bounds;
   }
 
   update(): void {
@@ -36,13 +36,13 @@ export default class ScreenActor {
 
   isInBounds() {
     return (
-      this.location.x <= this.bounds.x + this.bounds.width
+      this.location.x <= this.bounding_box.x + this.bounding_box.width
     ) && (
-      this.location.y <= this.bounds.y + this.bounds.height
+      this.location.y <= this.bounding_box.y + this.bounding_box.height
     ) && (
-      this.location.x - this.radius >= this.bounds.x
+      this.location.x - this.radius >= this.bounding_box.x
     ) && (
-      this.location.y - this.radius >= this.bounds.y
+      this.location.y - this.radius >= this.bounding_box.y
     )
   }
 
@@ -62,20 +62,20 @@ export default class ScreenActor {
     let side = Math.floor(Math.random()*4);
     switch(side) {
       case 0: // top
-        this.location.x = this.bounds.x + Math.random()*(this.bounds.width-this.radius*2) - this.radius;
-        this.location.y = this.bounds.y + this.radius;
+        this.location.x = this.bounding_box.x + Math.random()*(this.bounding_box.width-this.radius*2) - this.radius;
+        this.location.y = this.bounding_box.y + this.radius;
         break;
       case 1: // right
-        this.location.x = this.bounds.x + this.bounds.width - this.radius;
-        this.location.y = this.bounds.y + Math.random()*(this.bounds.height-this.radius*2) - this.radius;
+        this.location.x = this.bounding_box.x + this.bounding_box.width - this.radius;
+        this.location.y = this.bounding_box.y + Math.random()*(this.bounding_box.height-this.radius*2) - this.radius;
         break;
       case 2: // bottom
-        this.location.x = this.bounds.x + Math.random()*(this.bounds.width-this.radius*2) - this.radius;
-        this.location.y = this.bounds.y + this.bounds.height - this.radius;
+        this.location.x = this.bounding_box.x + Math.random()*(this.bounding_box.width-this.radius*2) - this.radius;
+        this.location.y = this.bounding_box.y + this.bounding_box.height - this.radius;
         break;
       case 3: // left
-        this.location.x = this.bounds.x + this.radius;
-        this.location.y = this.bounds.y + Math.random()*(this.bounds.height-this.radius*2) - this.radius;
+        this.location.x = this.bounding_box.x + this.radius;
+        this.location.y = this.bounding_box.y + Math.random()*(this.bounding_box.height-this.radius*2) - this.radius;
         break;
     }
     return this;
