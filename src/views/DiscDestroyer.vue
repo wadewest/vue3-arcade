@@ -4,6 +4,7 @@
       <div>Health: {{player.health}}</div>
       <div>Score: {{player.score}}</div>
       <div>Shots: {{player.shots_fired}}</div>
+      <div>Kills: {{player.kills}}</div>
     </div>
     <canvas ref="game_canvas" />
   </div>
