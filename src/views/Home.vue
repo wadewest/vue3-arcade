@@ -13,7 +13,7 @@ import Point from '@/models/Point';
 import Rect from '@/models/Rect';
 import ScreenActor from '@/models/ScreenActor';
 
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, watch, onMounted, onBeforeUnmount, Ref } from 'vue';
 
 export default {
   name: 'Home',
@@ -21,26 +21,27 @@ export default {
   },
 };
 
-export const game_container = ref(null);
-export const game_canvas = ref(null);
+export const game_container: Ref<HTMLDivElement|null> = ref(null);
+export const game_canvas: Ref<HTMLCanvasElement|null> = ref(null);
 export const health = ref(100);
 export const score = ref(0);
 
 const screen_rect = new Rect(0, 0, 640, 480);
-const actors = [];
+const actors: ScreenActor[][] = [];
 const player = new ScreenActor(screen_rect.midpoint(), null, 20, screen_rect);
 actors[0] = [player];
 actors[1] = []; // projectiles
 actors[2] = []; // enemies
 actors[3] = []; // particles
 
-let ctx: null = null;
-let animation_id = null;
-let update_timer = null;
-let spawn_timer = null;
+let ctx: CanvasRenderingContext2D|null = null;
+let animation_id: number|null = null;
+let update_timer: number|null = null;
+let spawn_timer: number|null = null;
 let game_over = false;
 
 function initGame() {
+  if(!game_canvas.value || !game_container.value) return;
   game_canvas.value.width = screen_rect.width;
   game_canvas.value.height = screen_rect.height;
   game_container.value.addEventListener('click', canvasClicked);
@@ -55,18 +56,20 @@ function tearDown() {
   if(update_timer) clearTimeout(update_timer);
   if(spawn_timer) clearTimeout(spawn_timer);
   if(animation_id) cancelAnimationFrame(animation_id);
-  game_container.value.removeEventListener('click', canvasClicked);
+  if(game_container.value) game_container.value.removeEventListener('click', canvasClicked);
 }
 
-function canvasClicked(event) {
-  if(actors[1].length >= 5) return;
+function canvasClicked(event: MouseEvent) {
+  if(!game_canvas.value || actors[1].length >= 5) return;
+  const clickX = event.pageX - game_canvas.value.offsetLeft;
+  const clickY = event.pageY - game_canvas.value.offsetTop;
   actors[1].push(
     new ScreenActor(
       screen_rect.midpoint(), 
       null,
       5, 
       screen_rect
-    ).move_to(new Point(event.layerX, event.layerY), 1.5)
+    ).move_to(new Point(clickX, clickY), 1.5)
   );
 }
 
@@ -112,6 +115,7 @@ function detect_collisons() {
 }
 
 function draw() {
+  if(!game_canvas.value || !ctx) return;
   ctx.clearRect(0, 0, game_canvas.value.width, game_canvas.value.height);
   actors.flat().forEach(actor => actor.draw(ctx));
   animation_id = requestAnimationFrame(draw);

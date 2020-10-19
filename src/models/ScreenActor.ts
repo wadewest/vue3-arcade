@@ -3,12 +3,12 @@ import Rect from '@/models/Rect';
 
 export default class ScreenActor {
   location: Point;
-  velocity: Point;
+  velocity: Point|null;
   radius: number;
   bounds: Rect;
   status: string = 'active';
 
-  constructor(location:Point, velocity:Point, radius:number, bounds:Rect) {
+  constructor(location:Point, velocity:Point|null, radius:number, bounds:Rect) {
     this.location = location;
     this.velocity = velocity;
     this.radius = radius;
@@ -25,8 +25,8 @@ export default class ScreenActor {
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D): void {
-    if(this.status === 'dead') return;
+  draw(ctx: CanvasRenderingContext2D|null): void {
+    if(!ctx || this.status === 'dead') return;
     ctx.beginPath();
     ctx.arc( this.location.x, this.location.y, 
       this.radius, 0, 2*Math.PI, false);
