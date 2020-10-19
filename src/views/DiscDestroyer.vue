@@ -29,7 +29,7 @@ let last_time = 0;
 let current_time = 0;
 let delta_time = 0;
 
-game_world.on_before_update = function(): boolean {
+game_world.before_update = function(): boolean {
   if(last_time == 0) {
     last_time = performance.now();
     return false;
@@ -39,17 +39,17 @@ game_world.on_before_update = function(): boolean {
   return true;
 }
 
-game_world.on_after_update = function(): void {
+game_world.after_update = function(): void {
   last_time = current_time;
 }
 
-game_world.on_before_draw = function(): boolean {
+game_world.before_draw = function(): boolean {
   if(!game_canvas.value || !ctx) return false;
   game_world.update(delta_time);
   ctx.clearRect(0, 0, game_canvas.value.width, game_canvas.value.height);
   return true
 }
-game_world.on_after_draw = function(): void {
+game_world.after_draw = function(): void {
   requestAnimationFrame(()=>game_world.draw(ctx));
 }
 
