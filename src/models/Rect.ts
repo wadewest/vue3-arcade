@@ -31,5 +31,9 @@ export default class Rect {
     return this.grow(-width, -height);
   }
 
+  copy(): Rect {
+    return new Rect(this.x, this.y, this.width, this.height);
+  }
+
 }
 
