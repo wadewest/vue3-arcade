@@ -15,10 +15,10 @@ export default class ScreenActor {
     this.bounding_box = bounds;
   }
 
-  update(): void {
+  update(dt:number): void {
     if(this.status === 'dead' || this.velocity === null) return;
-    this.location.x += this.velocity.x;
-    this.location.y += this.velocity.y;
+    this.location.x += this.velocity.x*dt;
+    this.location.y += this.velocity.y*dt;
     if(!this.isInBounds()) {
       this.status = 'dead';
       return;
