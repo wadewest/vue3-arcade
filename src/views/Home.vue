@@ -194,5 +194,6 @@ canvas {
   position: fixed;
   color: white;
   margin: 0.2rem;
+  z-index: 5;
 }
 </style>
