@@ -52,15 +52,15 @@ export default class DiscDestroyerWorld extends GameWorld {
   get particiles(): ScreenActor[] { return this.sprites[3] }
 
   fire_projectile_to(location:Point): void {
-    this.projectiles.push(
-      new ScreenActor(
-        this.player.location.copy(),
-        null,
-        3,
-        this.player.bounding_box.grow(5, 5)
-      )
-      .move_to(location, 500)
-    );
+    const projectile = new ScreenActor(
+      this.player.location.copy(),
+      null,
+      3,
+      this.player.bounding_box.grow(5, 5)
+    )
+    .move_to(location, 500);
+    projectile.did_leave_bounding_box = () => {this.player.update_accuracy_score()};
+    this.projectiles.push(projectile);
     this.player.shots_fired += 1;
   }
 

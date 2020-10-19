@@ -6,6 +6,7 @@ export default class ScreenActor {
   velocity: Point|null;
   radius: number;
   bounding_box: Rect;
+  did_leave_bounding_box: () => void = function(){};
   status: string = 'active';
 
   constructor(location:Point, velocity:Point|null, radius:number, bounds:Rect) {
@@ -21,6 +22,7 @@ export default class ScreenActor {
     this.location.y += this.velocity.y*dt;
     if(!this.isInBounds()) {
       this.status = 'dead';
+      this.did_leave_bounding_box();
       return;
     }
   }
