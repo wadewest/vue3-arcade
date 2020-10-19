@@ -84,7 +84,8 @@ export default class DiscDestroyerWorld extends GameWorld {
           enemy.status = 'dead';
           projectile.status = 'dead';
           this.player.kills += 1;
-          this.player.score += 5;
+          this.player.update_accuracy_score();
+          this.player.score += Math.round(10*this.player.accuracy);
           this.make_explosion(enemy.location.copy(), enemy.radius*enemy.radius);
           this.make_explosion(projectile.location.copy(), 25);
         }
