@@ -6,6 +6,7 @@ import Player from './Player';
 export default class DiscDestroyerWorld extends GameWorld {
 
   _player: Player;
+  spawn_rate: number = 5;
 
   constructor(p:Player) {
     super();
@@ -17,7 +18,7 @@ export default class DiscDestroyerWorld extends GameWorld {
   }
 
   pre_update(): void {
-    if(Math.random()*1000 < 5) {
+    if(Math.random()*1000 < this.spawn_rate) {
       const radius = Math.floor(Math.random()*15)+5
       this.enemies.push(
         new ScreenActor(
@@ -34,6 +35,15 @@ export default class DiscDestroyerWorld extends GameWorld {
 
   post_update(): void {
     this.process_collisions();
+    if(this.player.score < 200){
+      this.spawn_rate = 5;
+    } else if (this.player.score < 500) {
+      this.spawn_rate = 7;
+    } else if (this.player.score < 900) {
+      this.spawn_rate = 10;
+    } else {
+      this.spawn_rate = 15;
+    }
   }
 
   get player(): Player { return this._player; }
