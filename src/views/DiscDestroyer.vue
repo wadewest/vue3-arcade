@@ -23,7 +23,7 @@ export const game_canvas: Ref<HTMLCanvasElement|null> = ref(null);
 let ctx: CanvasRenderingContext2D|null = null;
 
 const screen_rect = new Rect(0, 0, 640, 480);
-export const player = reactive(new Player(screen_rect.midpoint(), null, 20, screen_rect.copy()));
+export const player = reactive(new Player(screen_rect.midpoint(), null, 20, screen_rect.copy())) as Player;
 const game_world = new DiscDestroyerWorld(player);
 let last_time = 0;
 let current_time = 0;
