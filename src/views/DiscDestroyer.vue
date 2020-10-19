@@ -3,7 +3,7 @@
     <div class="overlay">
       <div>Health: {{player.health}}</div>
       <div>Score: {{player.score}}</div>
-      <div>Shots: {{player.shots_fired}}</div>
+      <div>Accuracy: {{Math.floor(player.accuracy*100)}}%</div>
     </div>
     <canvas ref="game_canvas" />
   </div>
@@ -23,13 +23,13 @@ export const game_canvas: Ref<HTMLCanvasElement|null> = ref(null);
 let ctx: CanvasRenderingContext2D|null = null;
 
 const screen_rect = new Rect(0, 0, 640, 480);
-export const player = reactive(new Player(screen_rect.midpoint(), null, 20, screen_rect.copy()));
+export const player = reactive(new Player(screen_rect.midpoint(), null, 20, screen_rect.copy())) as Player;
 const game_world = new DiscDestroyerWorld(player);
 let last_time = 0;
 let current_time = 0;
 let delta_time = 0;
 
-game_world.on_before_update = function(): boolean {
+game_world.before_update = function(): boolean {
   if(last_time == 0) {
     last_time = performance.now();
     return false;
@@ -39,17 +39,17 @@ game_world.on_before_update = function(): boolean {
   return true;
 }
 
-game_world.on_after_update = function(): void {
+game_world.after_update = function(): void {
   last_time = current_time;
 }
 
-game_world.on_before_draw = function(): boolean {
+game_world.before_draw = function(): boolean {
   if(!game_canvas.value || !ctx) return false;
   game_world.update(delta_time);
   ctx.clearRect(0, 0, game_canvas.value.width, game_canvas.value.height);
   return true
 }
-game_world.on_after_draw = function(): void {
+game_world.after_draw = function(): void {
   requestAnimationFrame(()=>game_world.draw(ctx));
 }
 
