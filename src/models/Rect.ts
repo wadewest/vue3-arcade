@@ -12,6 +12,10 @@ export default class Rect {
     this.height = height;
   }
 
+  static centered_at(location:Point, width:number, height:number): Rect {
+    return new Rect(location.x-width/2, location.y-height/2, width, height);
+  }
+
   midpoint(): Point {
     return new Point(
       this.x + (this.width/2),
