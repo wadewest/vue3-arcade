@@ -4,16 +4,5 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount, Ref } from 'vue';
-
-export default {
-  name: 'Home',
-  components: {
-  },
-};
-
-</script>
-
 <style scoped lang="scss">
 </style>
