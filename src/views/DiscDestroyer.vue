@@ -7,6 +7,7 @@
     </div>
     <canvas ref="game_canvas" />
   </div>
+  <button @click="toggle_pause">{{game_world.is_paused ? "Resume" : "Pause"}}</button>
 </template>
 
 <script lang="ts">
