@@ -2,11 +2,12 @@ import GameWorld from '../GameWorld';
 import Point from '../Point';
 import Rect from '../Rect';
 import ScreenActor from '../ScreenActor';
+import GameStatePaused from './GameStatePaused';
 import Player from './Player';
 export default class DiscDestroyerWorld extends GameWorld {
 
   _player: Player;
-  spawn_rate: number = 5;
+  spawn_rate: number = 0;
 
   constructor(p:Player) {
     super();
@@ -17,7 +18,16 @@ export default class DiscDestroyerWorld extends GameWorld {
     this.sprites.push([]);
   }
 
-  pre_update(): void {
+  get player(): Player { return this._player; }
+  get projectiles(): ScreenActor[] { return this.sprites[1] }
+  get enemies(): ScreenActor[] { return this.sprites[2] }
+  get particiles(): ScreenActor[] { return this.sprites[3] }
+
+  is_paused(): boolean {
+    return this.state !== null;
+  }
+
+  will_update(delta_time:number): boolean {
     if(Math.random()*1000 < this.spawn_rate) {
       const radius = Math.floor(Math.random()*15)+5
       this.enemies.push(
@@ -31,27 +41,27 @@ export default class DiscDestroyerWorld extends GameWorld {
         .move_to(this.player.location, 10+Math.random()*15)
       );
     }
+    return true;
   }
 
-  post_update(): void {
-    this.process_collisions();
+  did_update(): void {
     if(this.player.score < 200){
-      this.spawn_rate = 5;
+      this.spawn_rate = 2;
     } else if (this.player.score < 500) {
-      this.spawn_rate = 7;
+      this.spawn_rate = 3;
     } else if (this.player.score < 900) {
-      this.spawn_rate = 10;
+      this.spawn_rate = 5;
     } else {
-      this.spawn_rate = 15;
+      this.spawn_rate = 8;
+    }
+    if(this.player.health <= 0) {
+      this.player.health = 0;
+      this.state = new GameStatePaused(this);
     }
   }
 
-  get player(): Player { return this._player; }
-  get projectiles(): ScreenActor[] { return this.sprites[1] }
-  get enemies(): ScreenActor[] { return this.sprites[2] }
-  get particiles(): ScreenActor[] { return this.sprites[3] }
-
   fire_projectile_to(location:Point): void {
+    if(!!this.state) return;
     const projectile = new ScreenActor(
       this.player.location.copy(),
       null,
@@ -64,7 +74,7 @@ export default class DiscDestroyerWorld extends GameWorld {
     this.player.shots_fired += 1;
   }
 
-  process_collisions(): void {
+  detect_collisions(delta_time:number): void {
     this.enemies.forEach(enemy => {
       if(
         (enemy.location.x-this.player.location.x)*(enemy.location.x-this.player.location.x)+

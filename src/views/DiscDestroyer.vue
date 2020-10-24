@@ -17,6 +17,7 @@ import Rect from '@/models/Rect';
 import ScreenActor from '@/models/ScreenActor';
 
 import { ref, watch, onMounted, onBeforeUnmount, Ref, reactive } from 'vue';
+import GameStatePaused from '@/models/disc_destroyer/GameStatePaused';
 
 export default {
   setup() {
@@ -26,34 +27,7 @@ export default {
 
     const screen_rect = new Rect(0, 0, 640, 480);
     const player = reactive(new Player(screen_rect.midpoint(), null, 20, screen_rect.copy())) as Player;
-    const game_world = new DiscDestroyerWorld(player);
-    let last_time = 0;
-    let current_time = 0;
-    let delta_time = 0;
-
-    game_world.before_update = function(): boolean {
-      if(last_time == 0) {
-        last_time = performance.now();
-        return false;
-      }
-      current_time = performance.now();
-      delta_time = Math.floor(current_time - last_time) / 1000;
-      return true;
-    }
-
-    game_world.after_update = function(): void {
-      last_time = current_time;
-    }
-
-    game_world.before_draw = function(): boolean {
-      if(!game_canvas.value || !ctx) return false;
-      game_world.update(delta_time);
-      ctx.clearRect(0, 0, game_canvas.value.width, game_canvas.value.height);
-      return true
-    }
-    game_world.after_draw = function(): void {
-      requestAnimationFrame(()=>game_world.draw(ctx));
-    }
+    const game_world = reactive(new DiscDestroyerWorld(player)) as DiscDestroyerWorld;
 
     function screen_was_clicked(event:MouseEvent): void {
       if(!game_canvas.value) return;
@@ -74,13 +48,34 @@ export default {
     onMounted(init_game);
 
     function start_game() {
+      setInterval(update, 0);
+      draw();
+    }
+
+    function update() {
+      game_world.update(Math.floor(performance.now())/1000);
+    }
+
+    function draw() {
+      ctx?.clearRect(0, 0, game_canvas.value?.width || 0, game_canvas.value?.height || 0);
       game_world.draw(ctx);
+      requestAnimationFrame(draw);
+    }
+
+    function toggle_pause() {
+      if(!game_world.state) {
+        game_world.state = new GameStatePaused(game_world);
+      } else if(game_world.state.constructor === GameStatePaused) {
+        game_world.state = (game_world.state as GameStatePaused).old_state;
+      }
     }
 
     return {
       player,
+      game_world,
       game_container,
-      game_canvas
+      game_canvas,
+      toggle_pause,
     }
   }
 }
@@ -101,7 +96,7 @@ canvas {
 .overlay {
   text-align: left;
   cursor: default;
-  position: fixed;
+  position: absolute;
   color: white;
   margin: 0.2rem;
   z-index: 5;
