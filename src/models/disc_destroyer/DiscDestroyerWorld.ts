@@ -23,7 +23,7 @@ export default class DiscDestroyerWorld extends GameWorld {
   get enemies(): ScreenActor[] { return this.sprites[2] }
   get particiles(): ScreenActor[] { return this.sprites[3] }
 
-  is_paused(): boolean {
+  get is_paused(): boolean {
     return this.state !== null;
   }
 
