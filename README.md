@@ -1,4 +1,5 @@
 # vue3-arcade
+See [Live Demo](https://wadewest.github.io/vue3-arcade/)
 
 ## Project setup
 ```
