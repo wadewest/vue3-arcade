@@ -1,11 +1,13 @@
 import Point from '@/models/Point';
 import Rect from '@/models/Rect';
+import Color from './Color';
 
 export default class ScreenActor {
   location: Point;
   velocity: Point|null;
   radius: number;
   bounding_box: Rect;
+  fill_color: Color = Color.create_random();
   did_leave_bounding_box: () => void = function(){};
   status: string = 'active';
 
@@ -32,7 +34,7 @@ export default class ScreenActor {
     ctx.beginPath();
     ctx.arc( this.location.x, this.location.y, 
       this.radius, 0, 2*Math.PI, false);
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = this.fill_color.rgba;
     ctx.fill();
   }
 
