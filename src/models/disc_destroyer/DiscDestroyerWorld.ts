@@ -1,9 +1,11 @@
-import GameWorld from '../GameWorld';
-import Point from '../Point';
-import Rect from '../Rect';
-import ScreenActor from '../ScreenActor';
+import GameWorld from '@/models/GameWorld';
+import Point from '@/models/Point';
+import Rect from '@/models/Rect';
+import Sprite from '@/models/Sprite';
+import ScreenCircle from '@/models/ScreenCircle';
 import GameStatePaused from './GameStatePaused';
 import Player from './Player';
+
 export default class DiscDestroyerWorld extends GameWorld {
 
   _player: Player;
@@ -19,9 +21,9 @@ export default class DiscDestroyerWorld extends GameWorld {
   }
 
   get player(): Player { return this._player; }
-  get projectiles(): ScreenActor[] { return this.sprites[1] }
-  get enemies(): ScreenActor[] { return this.sprites[2] }
-  get particiles(): ScreenActor[] { return this.sprites[3] }
+  get projectiles(): Sprite[] { return this.sprites[1] }
+  get enemies(): Sprite[] { return this.sprites[2] }
+  get particiles(): Sprite[] { return this.sprites[3] }
 
   get is_paused(): boolean {
     return this.state !== null;
@@ -31,7 +33,7 @@ export default class DiscDestroyerWorld extends GameWorld {
     if(Math.random()*1000 < this.spawn_rate) {
       const radius = Math.floor(Math.random()*15)+5
       this.enemies.push(
-        new ScreenActor(
+        new ScreenCircle(
           this.player.location.copy(),
           null,
           radius,
@@ -62,34 +64,41 @@ export default class DiscDestroyerWorld extends GameWorld {
 
   fire_projectile_to(location:Point): void {
     if(!!this.state) return;
-    const projectile = new ScreenActor(
+    const projectile = new ScreenCircle(
       this.player.location.copy(),
       null,
       3,
       this.player.bounding_box.grow(5, 5)
     )
     .move_to(location, 500);
-    projectile.did_leave_bounding_box = () => {this.player.update_accuracy_score()};
+    projectile.did_leave_bounding_box = () => {
+      projectile.status = 'dead';
+      this.player.update_accuracy_score()
+    };
     this.projectiles.push(projectile);
     this.player.shots_fired += 1;
   }
 
   detect_collisions(delta_time:number): void {
-    this.enemies.forEach(enemy => {
-      if(
-        (enemy.location.x-this.player.location.x)*(enemy.location.x-this.player.location.x)+
-        (enemy.location.y-this.player.location.y)*(enemy.location.y-this.player.location.y)<
-        (enemy.radius+this.player.radius)*(enemy.radius+this.player.radius)
+    this.enemies.forEach(e => {
+      const enemy = e as ScreenCircle;
+      if( enemy.may_collide(this.player) &&
+        this.player.location.distance_to_is_less_than_or_equal(
+          enemy.location,
+          this.player.radius + (<ScreenCircle>enemy).radius
+        )
       ) {
         enemy.status = 'dead';
         this.player.health -= 1;
         this.make_explosion(enemy.location.copy(), enemy.radius*enemy.radius);
       }
-      this.projectiles.forEach(projectile => {
-        if(
-          (enemy.location.x-projectile.location.x)*(enemy.location.x-projectile.location.x)+
-          (enemy.location.y-projectile.location.y)*(enemy.location.y-projectile.location.y)<
-          (enemy.radius+projectile.radius)*(enemy.radius+projectile.radius)
+      this.projectiles.forEach(p => {
+        const projectile = p as ScreenCircle;
+        if( projectile.may_collide(enemy) &&
+          projectile.location.distance_to_is_less_than_or_equal(
+            enemy.location,
+            projectile.radius + enemy.radius
+          )
         ) {
           enemy.status = 'dead';
           projectile.status = 'dead';
@@ -107,7 +116,7 @@ export default class DiscDestroyerWorld extends GameWorld {
     let particle_size = 2;
     for(let i = 0; i < particle_count; i++) {
       const box_size = 100+(Math.floor(Math.random()*100));
-      const particle = new ScreenActor(
+      const particle = new ScreenCircle(
         location.copy(),
         null,
         particle_size,

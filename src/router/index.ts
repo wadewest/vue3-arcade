@@ -20,6 +20,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Disc Destroyer',
     component: () => import('../views/DiscDestroyer.vue')
   },
+  {
+    path: '/demos/rectcollision',
+    name: 'Rectangle Collision',
+    component: () => import('../views/RectCollisionDemo.vue')
+  },
 ]
 
 const router = createRouter({

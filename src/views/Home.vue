@@ -5,6 +5,10 @@
     <ul>
       <li><router-link :to="{name:'Disc Destroyer'}">Disc Destroyer</router-link></li>
     </ul>
+    <h2>Demos</h2>
+    <ul>
+      <li><router-link :to="{name:'Rectangle Collision'}">Rectangle Collision</router-link></li>
+    </ul>
     <div>
       <small>Source available at <a href="https://github.com/wadewest/vue3-arcade">https://github.com/wadewest/vue3-arcade</a></small>
     </div>

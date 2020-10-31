@@ -1,6 +1,6 @@
-import ScreenActor from '../ScreenActor';
+import ScreenCircle from '@/models/ScreenCircle';
 
-export default class Player extends ScreenActor {
+export default class Player extends ScreenCircle {
 
   health: number = 25;
   shots_fired: number = 0;
