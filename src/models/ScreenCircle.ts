@@ -1,53 +1,25 @@
+import Sprite from '@/models/Sprite';
 import Point from '@/models/Point';
 import Rect from '@/models/Rect';
 import Color from './Color';
 
-export default class ScreenActor {
-  location: Point;
-  velocity: Point|null;
+export default class ScreenCircle extends Sprite {
   radius: number;
-  bounding_box: Rect;
   fill_color: Color = Color.create_random();
-  did_leave_bounding_box: () => void = function(){};
-  status: string = 'active';
 
-  constructor(location:Point, velocity:Point|null, radius:number, bounds:Rect) {
-    this.location = location;
-    this.velocity = velocity;
+  constructor(location:Point, velocity:Point|null, radius:number, bounding_box:Rect) {
+    super(location, velocity, bounding_box, null);
     this.radius = radius;
-    this.bounding_box = bounds;
+    this.collision_box = Rect.centered_at(location.copy(), radius*2, radius*2);
   }
 
-  update(dt:number): void {
-    if(this.status === 'dead' || this.velocity === null) return;
-    this.location.x += this.velocity.x*dt;
-    this.location.y += this.velocity.y*dt;
-    if(!this.isInBounds()) {
-      this.status = 'dead';
-      this.did_leave_bounding_box();
-      return;
-    }
-  }
-
-  draw(ctx: CanvasRenderingContext2D|null): void {
+  draw(ctx: CanvasRenderingContext2D): void {
     if(!ctx || this.status === 'dead') return;
     ctx.beginPath();
     ctx.arc( this.location.x, this.location.y, 
       this.radius, 0, 2*Math.PI, false);
     ctx.fillStyle = this.fill_color.rgba;
     ctx.fill();
-  }
-
-  isInBounds() {
-    return (
-      this.location.x <= this.bounding_box.x + this.bounding_box.width
-    ) && (
-      this.location.y <= this.bounding_box.y + this.bounding_box.height
-    ) && (
-      this.location.x - this.radius >= this.bounding_box.x
-    ) && (
-      this.location.y - this.radius >= this.bounding_box.y
-    )
   }
 
   move_to(p: Point, speed: number = 1): this {

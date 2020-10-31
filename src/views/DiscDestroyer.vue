@@ -15,7 +15,7 @@ import DiscDestroyerWorld from '@/models/disc_destroyer/DiscDestroyerWorld';
 import Player from '@/models/disc_destroyer/Player';
 import Point from '@/models/Point';
 import Rect from '@/models/Rect';
-import ScreenActor from '@/models/ScreenActor';
+import ScreenCircle from '@/models/ScreenCircle';
 
 import { ref, watch, onMounted, onBeforeUnmount, Ref, reactive } from 'vue';
 import GameStatePaused from '@/models/disc_destroyer/GameStatePaused';
@@ -24,7 +24,6 @@ export default {
   setup() {
     const game_container: Ref<HTMLDivElement|null> = ref(null);
     const game_canvas: Ref<HTMLCanvasElement|null> = ref(null);
-    let ctx: CanvasRenderingContext2D|null = null;
 
     const screen_rect = new Rect(0, 0, 640, 480);
     const player = reactive(new Player(screen_rect.midpoint(), null, 20, screen_rect.copy())) as Player;
@@ -42,25 +41,25 @@ export default {
       if(!game_canvas.value || !game_container.value) return;
       game_canvas.value.width = screen_rect.width;
       game_canvas.value.height = screen_rect.height;
-      ctx = game_canvas.value.getContext('2d');
-      game_container.value.addEventListener('click', screen_was_clicked);
-      start_game();
+      const ctx = game_canvas.value.getContext('2d') as CanvasRenderingContext2D;
+      start_game(ctx);
     }
     onMounted(init_game);
 
-    function start_game() {
+    function start_game(ctx:CanvasRenderingContext2D) {
+      game_container.value?.addEventListener('click', screen_was_clicked);
       setInterval(update, 0);
-      draw();
+      draw(ctx);
     }
 
     function update() {
       game_world.update(Math.floor(performance.now())/1000);
     }
 
-    function draw() {
-      ctx?.clearRect(0, 0, game_canvas.value?.width || 0, game_canvas.value?.height || 0);
+    function draw(ctx:CanvasRenderingContext2D) {
+      ctx.clearRect(0, 0, screen_rect.width, screen_rect.height);
       game_world.draw(ctx);
-      requestAnimationFrame(draw);
+      requestAnimationFrame(() => draw(ctx));
     }
 
     function toggle_pause() {

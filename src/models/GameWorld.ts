@@ -1,9 +1,9 @@
-import ScreenActor from '@/models/ScreenActor';
+import Sprite from '@/models/Sprite';
 import IGameWorldState from './IGameWorldState';
 
 export default class GameWorld {
 
-  sprites: ScreenActor[][] = [];
+  sprites: Sprite[][] = [];
   last_time: number = 0;
   private _state: IGameWorldState|null = null;
 
@@ -58,7 +58,7 @@ export default class GameWorld {
     }
   }
 
-  draw(ctx:CanvasRenderingContext2D|null): void {
+  draw(ctx:CanvasRenderingContext2D): void {
     if(!this.before_draw()) return;
     this.sprites.flat().forEach(sprite => sprite.draw(ctx));
     this.after_draw();
