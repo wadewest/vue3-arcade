@@ -8,9 +8,12 @@ export default class ScreenCircle extends Sprite {
   fill_color: Color = Color.create_random();
 
   constructor(location:Point, velocity:Point|null, radius:number, bounding_box:Rect) {
-    super(location, velocity, bounding_box, null);
+    super(location, velocity, bounding_box);
     this.radius = radius;
-    this.collision_box = Rect.centered_at(location.copy(), radius*2, radius*2);
+  }
+
+  get collision_box():Rect {
+    return Rect.centered_at(this.location, this.radius*2, this.radius*2);
   }
 
   draw(ctx: CanvasRenderingContext2D): void {

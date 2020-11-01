@@ -1,10 +1,14 @@
 import Sprite from '@/models/Sprite';
 import IGameWorldState from './IGameWorldState';
+import Rect from './Rect';
 
 export default class GameWorld {
 
   sprites: Sprite[][] = [];
   last_time: number = 0;
+  width: number = 0;
+  height: number = 0;
+  viewport: Rect|null = null;
   private _state: IGameWorldState|null = null;
 
   get state(): IGameWorldState|null {
@@ -13,6 +17,8 @@ export default class GameWorld {
   set state(new_state:IGameWorldState|null) {
     this._state = new_state;
   }
+
+  get world_area():Rect { return new Rect(0, 0, this.width, this.height); }
 
   before_draw: () => boolean = function(){return true;};
   after_draw: () => void = function(){};
@@ -60,7 +66,17 @@ export default class GameWorld {
 
   draw(ctx:CanvasRenderingContext2D): void {
     if(!this.before_draw()) return;
-    this.sprites.flat().forEach(sprite => sprite.draw(ctx));
+    this.sprites.flat().forEach(sprite => {
+      if(!this.viewport) {
+        sprite.draw(ctx)
+      } else if(sprite.collision_box.intersects(this.viewport)) {
+        sprite.location.x -= this.viewport.x;
+        sprite.location.y -= this.viewport.y;
+        sprite.draw(ctx);
+        sprite.location.x += this.viewport.x;
+        sprite.location.y += this.viewport.y;
+      }
+    });
     this.after_draw();
   }
 

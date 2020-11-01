@@ -6,21 +6,20 @@ export default abstract class Sprite {
   location: Point;
   velocity: Point|null;
   bounding_box: Rect;
-  collision_box: Rect;
   status: string = 'active';
 
-  constructor(location:Point, velocity:Point|null, bounding_box:Rect, collision_box:Rect|null) {
+  constructor(location:Point, velocity:Point|null, bounding_box:Rect) {
     this.location = location;
     this.velocity = velocity;
     this.bounding_box = bounding_box;
-    this.collision_box = collision_box || Rect.null_rect;
   }
 
   update(dt:number): void {
-    if(this.status === 'dead' || this.velocity === null) return;
-    this.location.x += this.velocity.x*dt;
-    this.location.y += this.velocity.y*dt;
-    this.collision_box.center = this.location;
+    if(this.status === 'dead') return;
+      if(this.velocity != null) {
+        this.location.x += this.velocity.x*dt;
+        this.location.y += this.velocity.y*dt;
+      }
     if(!this.is_in_bounds()) {
       this.did_leave_bounding_box();
       return;
@@ -47,5 +46,6 @@ export default abstract class Sprite {
     return this.collision_box.intersects(other_sprite.collision_box);
   }
 
+  abstract get collision_box(): Rect;
   abstract draw(ctx: CanvasRenderingContext2D|null): void;
 }
