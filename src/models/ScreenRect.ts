@@ -5,10 +5,17 @@ import Color from './Color';
 
 export default class ScreenRect extends Sprite {
   fill_color: Color = Color.create_random();
+  width: number;
+  height: number;
 
   constructor(location:Point, velocity:Point|null, width:number, height:number, bounding_box:Rect) {
-    super(location, velocity, bounding_box, null);
-    this.collision_box = Rect.centered_at(location.copy(), width, height);
+    super(location, velocity, bounding_box);
+    this.width = width;
+    this.height = height;
+  }
+
+  get collision_box(): Rect {
+    return Rect.centered_at(this.location, this.width, this.height);
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
