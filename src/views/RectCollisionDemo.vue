@@ -1,5 +1,4 @@
 <template>
-  <div>{{game_world.viewport}}</div>
   <div ref="game_container" class="game-content" >
     <canvas ref="game_canvas" width="640" height="480" />
   </div>
@@ -16,101 +15,126 @@ import ScreenRect from '@/models/ScreenRect';
 
 import { ref, watch, onMounted, onBeforeUnmount, Ref, reactive } from 'vue';
 
+class RectangleCollisionWorld extends GameWorld {
+
+  selected_rect: ScreenRect|null = null;
+  bound_handlers = {
+    mousemove: this.handle_mousemove.bind(this),
+    mouseup: this.handle_mouseup.bind(this),
+    mousedown: this.handle_mousedown.bind(this)
+  }
+
+  get rectangles(): ScreenRect[] { return this.sprites[0] as ScreenRect[]; }
+  get collisions(): ScreenRect[] { return this.sprites[1] as ScreenRect[]; }
+
+  setup(ctx:RenderingContext): void {
+    this.width = 1200;
+    this.height = 800;
+    this.sprites.push([]);
+    this.sprites.push([]);
+    this.sprites.push([]);
+    this.rectangles.push(this.create_rectangle(new Point(-150, -120), 200, 200, new Color(0,255,0)));
+    this.rectangles.push(this.create_rectangle(new Point(100, 15), 180, 50, new Color(0,0,255)));
+    this.sprites[2].push(this.create_rectangle(Point.origin, 1, 1000, new Color(255, 255, 0, 0.5)));
+    this.sprites[2].push(this.create_rectangle(Point.origin, 1000, 1, new Color(255, 255, 0, 0.5)));
+    this.viewport = new Rect(
+      -ctx.canvas.width/2, 
+      -ctx.canvas.height/2, 
+      ctx.canvas.width,
+      ctx.canvas.height,
+    );
+  }
+
+  create_rectangle(center:Point, width:number, height:number, color:Color = Color.create_random()): ScreenRect {
+    const r = new ScreenRect(center.copy(), null, width, height, Rect.null_rect);
+    r.fill_color = color;
+    r.did_leave_bounding_box = ()=>{};
+    return r;
+  }
+
+  detect_collisions(dt:number) {
+    this.collisions.length = 0;
+    for(let i = 0; i < this.rectangles.length-1; i++)
+      for(let j = i+1; j < this.rectangles.length; j++) {
+        const c_rect = this.rectangles[i].collision_box.intersection(this.rectangles[j].collision_box);
+        if(!!c_rect) {
+          this.collisions.push(
+            this.create_rectangle(c_rect.center, c_rect.width, c_rect.height, new Color(255, 0, 0))
+          );
+        }
+      }
+  }
+
+  handle_mousedown(event:MouseEvent) {
+    event.preventDefault;
+    event.stopPropagation;
+    const container = event.target as HTMLElement;
+    const location = new Point(
+      event.pageX - container.offsetLeft + (this.viewport?.x || 0),
+      event.pageY - container.offsetTop + (this.viewport?.y || 0)
+    );
+    this.selected_rect = this.get_rect_at(location);
+    const doc = this.get_root_node(container);
+    doc.addEventListener('mousemove', this.bound_handlers.mousemove);
+    doc.addEventListener('mouseup', this.bound_handlers.mouseup);
+  }
+
+  handle_mousemove(event:MouseEvent) {
+    event.preventDefault;
+    event.stopPropagation;
+    if(!!this.selected_rect) {
+      this.selected_rect.location.x += event.movementX;
+      this.selected_rect.location.y += event.movementY;
+    } else if(!!this.viewport) {
+      this.viewport.x -= event.movementX;
+      this.viewport.y -= event.movementY;
+    }
+  }
+
+  handle_mouseup(event:MouseEvent) {
+    event.preventDefault;
+    event.stopPropagation;
+    const container = event.target as HTMLElement;
+    this.selected_rect = null;
+    const doc = this.get_root_node(container);
+    doc.removeEventListener('mousemove', this.bound_handlers.mousemove);
+    doc.removeEventListener('mouseup', this.bound_handlers.mouseup);
+  }
+
+  get_root_node(el:HTMLElement): HTMLElement {
+    if(el.constructor == HTMLDocument) return el;
+    return this.get_root_node(el.parentNode as HTMLElement);
+  }
+
+  get_rect_at(location:Point): ScreenRect|null {
+    for(let i = this.rectangles.length-1; i >= 0; i--) {
+      if(this.rectangles[i].collision_box.contains(location)) {
+        return this.rectangles[i];
+      }
+    }
+    return null;
+  }
+
+}
+
 export default {
   setup() {
     const game_container: Ref<HTMLDivElement|null> = ref(null);
     const game_canvas: Ref<HTMLCanvasElement|null> = ref(null);
 
-    const game_world = reactive(new GameWorld()) as GameWorld;
-
-    const rect1 = new ScreenRect(new Point(-150, -120), null, 200, 200, Rect.null_rect);
-    rect1.fill_color = new Color(0, 255, 0);
-    const rect2 = new ScreenRect(new Point(100, 15), null, 150, 50, Rect.null_rect);
-    rect2.fill_color = new Color(0, 0, 255);
-    const last_mouse : Point = Point.origin;
-    let selected_rect: Sprite|null = null;
+    const game_world = new RectangleCollisionWorld();
 
     function init_game(): void {
       if(!game_canvas.value || !game_container.value) return;
-      game_world.width = 1200;
-      game_world.height = 800;
-      game_world.viewport = new Rect(
-        -game_canvas.value.width/2, 
-        -game_canvas.value.height/2, 
-        game_canvas.value.width,
-        game_canvas.value.height,
-      );
       const buffer = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D;
-      buffer.canvas.width = game_world.width;
-      buffer.canvas.height = game_world.height;
-      rect1.did_leave_bounding_box = function(){};
-      rect2.did_leave_bounding_box = rect1.did_leave_bounding_box;
+      buffer.canvas.width = game_canvas.value.width;
+      buffer.canvas.height = game_canvas.value.height;
       const ctx = game_canvas.value.getContext('2d') as CanvasRenderingContext2D;
-      const y_axis = new ScreenRect(Point.origin, null, 1, 1000, Rect.null_rect);
-      const x_axis = new ScreenRect(Point.origin, null, 1000, 1, Rect.null_rect);
-      y_axis.fill_color = new Color(255, 255, 0, 0.5);
-      x_axis.fill_color = y_axis.fill_color;
-      y_axis.did_leave_bounding_box = rect1.did_leave_bounding_box;
-      x_axis.did_leave_bounding_box = rect1.did_leave_bounding_box;
-      game_world.detect_collisions = detect_rect_collision;
-      game_world.sprites = [ [rect1, rect2], [], [y_axis, x_axis]];
-      game_container.value.addEventListener('mousedown', function(event:MouseEvent){
-        if(!game_container.value) return;
-        selected_rect = null;
-        last_mouse.x = event.pageX - game_container.value.offsetLeft;
-        last_mouse.y = event.pageY - game_container.value.offsetTop;
-        if(!!game_world.viewport) {
-          last_mouse.x += game_world.viewport.x;
-          last_mouse.y += game_world.viewport.y;
-        }
-        const rectangles = game_world.sprites[0];
-        for(let i = rectangles.length-1; !selected_rect && i >= 0; i--) {
-          if(rectangles[i].collision_box.contains(last_mouse)) {
-            selected_rect = rectangles[i];
-          }
-        }
-        if(!!game_world.viewport) {
-          last_mouse.x -= game_world.viewport.x;
-          last_mouse.y -= game_world.viewport.y;
-        }
-        game_container.value?.addEventListener('mousemove', move_rect);
-      });
-      game_container.value.addEventListener('mouseup', function(event:MouseEvent){
-        game_container.value?.removeEventListener('mousemove', move_rect);
-        selected_rect = null;
-      });
+      game_world.setup(ctx);
+      game_container.value.addEventListener('mousedown', game_world.bound_handlers.mousedown);
       start_game(ctx, buffer);
     }
     onMounted(init_game);
-
-    function move_rect(event:MouseEvent) {
-      if(!game_container.value) return;
-      const current_mouse = new Point(
-        event.pageX - game_container.value.offsetLeft, 
-        event.pageY - game_container.value.offsetTop,
-      )
-      if(!!selected_rect) {
-        selected_rect.location.x += current_mouse.x - last_mouse.x;
-        selected_rect.location.y += current_mouse.y - last_mouse.y;
-      } else {
-        if(!!game_world.viewport) {
-          game_world.viewport.x -= current_mouse.x - last_mouse.x;
-          game_world.viewport.y -= current_mouse.y - last_mouse.y;
-        }
-      }
-      last_mouse.x = current_mouse.x;
-      last_mouse.y = current_mouse.y;
-    }
-
-    function detect_rect_collision(dt:number) {
-      game_world.sprites[1] = [];
-      const c_rect = rect1.collision_box.intersection(rect2.collision_box);
-      if(!!c_rect) {
-        const new_rect = new ScreenRect( c_rect.center, null, c_rect.width, c_rect.height, Rect.null_rect);
-        new_rect.fill_color = new Color(255, 0, 0);
-        game_world.sprites[1].push(new_rect);
-      }
-    }
 
     function start_game(ctx:CanvasRenderingContext2D, buffer:CanvasRenderingContext2D) {
       setInterval(update, 0);
@@ -134,7 +158,6 @@ export default {
     }
 
     return {
-      game_world,
       game_container,
       game_canvas,
     }
