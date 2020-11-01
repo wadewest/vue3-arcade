@@ -15,9 +15,11 @@ export default abstract class Sprite {
   }
 
   update(dt:number): void {
-    if(this.status === 'dead' || this.velocity === null) return;
-    this.location.x += this.velocity.x*dt;
-    this.location.y += this.velocity.y*dt;
+    if(this.status === 'dead') return;
+      if(this.velocity != null) {
+        this.location.x += this.velocity.x*dt;
+        this.location.y += this.velocity.y*dt;
+      }
     if(!this.is_in_bounds()) {
       this.did_leave_bounding_box();
       return;
