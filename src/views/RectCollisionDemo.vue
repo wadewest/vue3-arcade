@@ -41,8 +41,8 @@ export default {
         game_canvas.value.height,
       );
       const buffer = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D;
-      buffer.canvas.width = game_world.width;
-      buffer.canvas.height = game_world.height;
+      buffer.canvas.width = game_canvas.value.width;
+      buffer.canvas.height = game_canvas.value.height;
       rect1.did_leave_bounding_box = function(){};
       rect2.did_leave_bounding_box = rect1.did_leave_bounding_box;
       const ctx = game_canvas.value.getContext('2d') as CanvasRenderingContext2D;
