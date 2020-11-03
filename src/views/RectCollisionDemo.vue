@@ -1,4 +1,5 @@
 <template>
+  <button @click="new_rectangle">Add Rectangle</button>
   <div ref="game_container" class="game-content" >
     <canvas ref="game_canvas" width="640" height="480" />
   </div>
@@ -157,9 +158,22 @@ export default {
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
+    function new_rectangle(): void {
+      if(!game_world.viewport) return;
+      const width = Math.floor(Math.random()*151)+50;
+      const height = Math.floor(Math.random()*151)+50;
+      const rectangle = game_world.create_rectangle(
+        game_world.viewport.center,
+        width, height,
+        Color.create_random()
+      )
+      game_world.rectangles.push(rectangle);
+    }
+
     return {
       game_container,
       game_canvas,
+      new_rectangle,
     }
   }
 }
