@@ -82,24 +82,14 @@ export default class DiscDestroyerWorld extends GameWorld {
   detect_collisions(delta_time:number): void {
     this.enemies.forEach(e => {
       const enemy = e as ScreenCircle;
-      if( enemy.may_collide(this.player) &&
-        this.player.location.distance_to_is_less_than_or_equal(
-          enemy.location,
-          this.player.radius + (<ScreenCircle>enemy).radius
-        )
-      ) {
+      if(enemy.location.compare_distance(this.player.location, enemy.radius+this.player.radius) <= 0) {
         enemy.status = 'dead';
         this.player.health -= 1;
         this.make_explosion(enemy.location.copy(), enemy.radius*enemy.radius);
       }
       this.projectiles.forEach(p => {
         const projectile = p as ScreenCircle;
-        if( projectile.may_collide(enemy) &&
-          projectile.location.distance_to_is_less_than_or_equal(
-            enemy.location,
-            projectile.radius + enemy.radius
-          )
-        ) {
+        if(enemy.location.compare_distance(projectile.location, enemy.radius+projectile.radius) <= 0) {
           enemy.status = 'dead';
           projectile.status = 'dead';
           this.player.kills += 1;
