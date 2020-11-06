@@ -9,8 +9,10 @@ export default interface IGameWorldState {
   did_update?(delta_time:number): void;
 
   // functions to overrided drawing
+  translate_context?(ctx:CanvasRenderingContext2D): void;
   will_draw?(ctx:CanvasRenderingContext2D): boolean;
   draw_sprites?(ctx:CanvasRenderingContext2D): void;
   did_draw?(ctx:CanvasRenderingContext2D): void;
+  restore_context?(ctx:CanvasRenderingContext2D): void;
 
 };

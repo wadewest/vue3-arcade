@@ -63,26 +63,32 @@ export default class GameWorld {
   }
 
   draw(ctx:CanvasRenderingContext2D): void {
+    this.call_state_function('translate_context', ctx);
     if(this.call_state_function('will_draw', ctx)) {
       this.call_state_function('draw_sprites', ctx);
       this.call_state_function('did_draw', ctx);
     }
+    this.call_state_function('restore_context', ctx);
+  }
+
+  translate_context(ctx:CanvasRenderingContext2D): void {
+    ctx.save();
+    ctx.translate(-this.viewport.x, -this.viewport.y);
   }
 
   will_draw(ctx:CanvasRenderingContext2D): boolean { return true; }
+
   draw_sprites(ctx:CanvasRenderingContext2D): void {
     this.sprites.flat().forEach(sprite => {
-      if(sprite.collision_box.intersects(this.viewport)) {
-        sprite.location.x -= this.viewport.x;
-        sprite.location.y -= this.viewport.y;
-        sprite.draw(ctx);
-        sprite.location.x += this.viewport.x;
-        sprite.location.y += this.viewport.y;
-      }
+      if(sprite.collision_box.intersects(this.viewport)) sprite.draw(ctx);
     });
   }
+
   did_draw(ctx:CanvasRenderingContext2D): void {}
 
+  restore_context(ctx:CanvasRenderingContext2D): void {
+    ctx.restore();
+  }
 
   call_state_function(func_name:string, ...args:any[]): boolean|void {
     if(!!this.state && func_name in this.state) {
