@@ -1,7 +1,7 @@
 <template>
   <button @click="new_rectangle">Add Rectangle</button>
   <div ref="game_container" class="game-content" >
-    <canvas ref="game_canvas" width="640" height="480" />
+    <canvas width="640" height="480" />
   </div>
 </template>
 
@@ -14,7 +14,7 @@ import Color from '@/models/Color';
 import Sprite from '@/models/Sprite';
 import ScreenRect from '@/models/ScreenRect';
 
-import { ref, watch, onMounted, onBeforeUnmount, Ref, reactive } from 'vue';
+import { ref, onMounted, Ref } from 'vue';
 
 class RectangleCollisionWorld extends GameWorld {
 
@@ -29,8 +29,7 @@ class RectangleCollisionWorld extends GameWorld {
   get collisions(): ScreenRect[] { return this.sprites[1] as ScreenRect[]; }
 
   setup(ctx:RenderingContext): void {
-    this.width = 1200;
-    this.height = 800;
+    super.setup(ctx);
     this.sprites.push([]);
     this.sprites.push([]);
     this.sprites.push([]);
@@ -71,8 +70,8 @@ class RectangleCollisionWorld extends GameWorld {
     event.stopPropagation;
     const container = event.target as HTMLElement;
     const location = new Point(
-      event.pageX - container.offsetLeft + (this.viewport?.x || 0),
-      event.pageY - container.offsetTop + (this.viewport?.y || 0)
+      event.pageX - container.offsetLeft + this.viewport.x,
+      event.pageY - container.offsetTop + this.viewport.y
     );
     this.selected_rect = this.get_rect_at(location);
     const doc = this.get_root_node(container);
@@ -86,7 +85,7 @@ class RectangleCollisionWorld extends GameWorld {
     if(!!this.selected_rect) {
       this.selected_rect.location.x += event.movementX;
       this.selected_rect.location.y += event.movementY;
-    } else if(!!this.viewport) {
+    } else {
       this.viewport.x -= event.movementX;
       this.viewport.y -= event.movementY;
     }
@@ -121,21 +120,20 @@ class RectangleCollisionWorld extends GameWorld {
 export default {
   setup() {
     const game_container: Ref<HTMLDivElement|null> = ref(null);
-    const game_canvas: Ref<HTMLCanvasElement|null> = ref(null);
 
     const game_world = new RectangleCollisionWorld();
 
-    function init_game(): void {
-      if(!game_canvas.value || !game_container.value) return;
+    onMounted(()=>{
+      if(!game_container.value) return;
+      const game_canvas = game_container.value.querySelector('canvas') as HTMLCanvasElement;
       const buffer = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D;
-      buffer.canvas.width = game_canvas.value.width;
-      buffer.canvas.height = game_canvas.value.height;
-      const ctx = game_canvas.value.getContext('2d') as CanvasRenderingContext2D;
+      buffer.canvas.width = game_canvas.width;
+      buffer.canvas.height = game_canvas.height;
+      const ctx = game_canvas.getContext('2d') as CanvasRenderingContext2D;
       game_world.setup(ctx);
       game_container.value.addEventListener('mousedown', game_world.bound_handlers.mousedown);
       start_game(ctx, buffer);
-    }
-    onMounted(init_game);
+    });
 
     function start_game(ctx:CanvasRenderingContext2D, buffer:CanvasRenderingContext2D) {
       setInterval(update, 0);
@@ -172,7 +170,6 @@ export default {
 
     return {
       game_container,
-      game_canvas,
       new_rectangle,
     }
   }

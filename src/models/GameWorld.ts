@@ -6,9 +6,9 @@ export default class GameWorld {
 
   sprites: Sprite[][] = [];
   last_time: number = 0;
-  width: number = 0;
-  height: number = 0;
-  viewport: Rect|null = null;
+  width: number;
+  height: number;
+  viewport: Rect;
   private _state: IGameWorldState|null = null;
 
   get state(): IGameWorldState|null {
@@ -20,8 +20,11 @@ export default class GameWorld {
 
   get world_area():Rect { return new Rect(0, 0, this.width, this.height); }
 
-  before_draw: () => boolean = function(){return true;};
-  after_draw: () => void = function(){};
+  constructor(width:number = 640, height:number = 480) {
+    this.width = width;
+    this.height = height;
+    this.viewport = new Rect(0, 0, width, height);
+  }
 
   update(timestamp:number): void {
     if(this.last_time == 0) {
@@ -39,14 +42,9 @@ export default class GameWorld {
     this.last_time = current_time;
   }
 
-  call_state_function(func_name:string, ...args:any[]): boolean|void {
-    if(!!this.state && func_name in this.state) {
-      // @ts-ignore
-      return this.state[func_name](...args);
-    } else {
-      // @ts-ignore
-      return this[func_name](...args);
-    }
+  setup(ctx:RenderingContext): void {
+    this.viewport.width = ctx.canvas.width;
+    this.viewport.height = ctx.canvas.height;
   }
 
   will_update(delta_time:number): boolean {return true;}
@@ -65,19 +63,44 @@ export default class GameWorld {
   }
 
   draw(ctx:CanvasRenderingContext2D): void {
-    if(!this.before_draw()) return;
-    this.sprites.flat().forEach(sprite => {
-      if(!this.viewport) {
-        sprite.draw(ctx)
-      } else if(sprite.collision_box.intersects(this.viewport)) {
-        sprite.location.x -= this.viewport.x;
-        sprite.location.y -= this.viewport.y;
-        sprite.draw(ctx);
-        sprite.location.x += this.viewport.x;
-        sprite.location.y += this.viewport.y;
-      }
-    });
-    this.after_draw();
+    this.call_state_function('translate_context', ctx);
+    if(this.call_state_function('will_draw', ctx)) {
+      this.call_state_function('draw_sprites', ctx);
+      this.call_state_function('did_draw', ctx);
+    }
+    this.call_state_function('restore_context', ctx);
   }
+
+  translate_context(ctx:CanvasRenderingContext2D): void {
+    ctx.save();
+    ctx.translate(-this.viewport.x, -this.viewport.y);
+  }
+
+  will_draw(ctx:CanvasRenderingContext2D): boolean { return true; }
+
+  draw_sprites(ctx:CanvasRenderingContext2D): void {
+    this.sprites.flat().forEach(sprite => {
+      if(sprite.collision_box.intersects(this.viewport)) sprite.draw(ctx);
+    });
+  }
+
+  did_draw(ctx:CanvasRenderingContext2D): void {}
+
+  restore_context(ctx:CanvasRenderingContext2D): void {
+    ctx.restore();
+  }
+
+  call_state_function(func_name:string, ...args:any[]): boolean|void {
+    if(!!this.state && func_name in this.state) {
+      // @ts-ignore
+      return this.state[func_name](...args);
+    } else if(func_name in this) {
+      // @ts-ignore
+      return this[func_name](...args);
+    } else {
+      console.log("GameWorld or WorldState doesn't implement "+func_name);
+    }
+  }
+
 
 }

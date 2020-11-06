@@ -21,16 +21,13 @@ export default class Point {
     return Math.sqrt((x*x) + (y*y));
   }
 
-  distance_to_is_less_than(p:Point, d:number): boolean {
-    const x = this.x - p.x;
-    const y = this.y - p.y;
-    return (x*x)+(y*y)<(d*d);
-  }
-
-  distance_to_is_less_than_or_equal(p:Point, d:number): boolean {
-    const x = this.x - p.x;
-    const y = this.y - p.y;
-    return (x*x)+(y*y)<=(d*d);
+  compare_distance(p:Point, distance:number): number {
+    const x = (this.x - p.x)*(this.x - p.x);
+    const y = (this.y - p.y)*(this.y - p.y);
+    const d = distance*distance
+    if(x+y<d) return -1;
+    else if(x+y>d) return 1;
+    else return 0;
   }
 
   copy(): Point {
