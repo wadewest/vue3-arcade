@@ -26,9 +26,6 @@ export default class GameWorld {
     this.viewport = new Rect(0, 0, width, height);
   }
 
-  before_draw: () => boolean = function(){return true;};
-  after_draw: () => void = function(){};
-
   update(timestamp:number): void {
     if(this.last_time == 0) {
       this.last_time = timestamp;
@@ -50,16 +47,6 @@ export default class GameWorld {
     this.viewport.height = ctx.canvas.height;
   }
 
-  call_state_function(func_name:string, ...args:any[]): boolean|void {
-    if(!!this.state && func_name in this.state) {
-      // @ts-ignore
-      return this.state[func_name](...args);
-    } else {
-      // @ts-ignore
-      return this[func_name](...args);
-    }
-  }
-
   will_update(delta_time:number): boolean {return true;}
   did_update(delta_time:number): void {}
 
@@ -76,11 +63,16 @@ export default class GameWorld {
   }
 
   draw(ctx:CanvasRenderingContext2D): void {
-    if(!this.before_draw()) return;
+    if(this.call_state_function('will_draw', ctx)) {
+      this.call_state_function('draw_sprites', ctx);
+      this.call_state_function('did_draw', ctx);
+    }
+  }
+
+  will_draw(ctx:CanvasRenderingContext2D): boolean { return true; }
+  draw_sprites(ctx:CanvasRenderingContext2D): void {
     this.sprites.flat().forEach(sprite => {
-      if(!this.viewport) {
-        sprite.draw(ctx)
-      } else if(sprite.collision_box.intersects(this.viewport)) {
+      if(sprite.collision_box.intersects(this.viewport)) {
         sprite.location.x -= this.viewport.x;
         sprite.location.y -= this.viewport.y;
         sprite.draw(ctx);
@@ -88,7 +80,21 @@ export default class GameWorld {
         sprite.location.y += this.viewport.y;
       }
     });
-    this.after_draw();
   }
+  did_draw(ctx:CanvasRenderingContext2D): void {}
+
+
+  call_state_function(func_name:string, ...args:any[]): boolean|void {
+    if(!!this.state && func_name in this.state) {
+      // @ts-ignore
+      return this.state[func_name](...args);
+    } else if(func_name in this) {
+      // @ts-ignore
+      return this[func_name](...args);
+    } else {
+      console.log("GameWorld or WorldState doesn't implement "+func_name);
+    }
+  }
+
 
 }

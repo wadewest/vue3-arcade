@@ -11,14 +11,14 @@
 </template>
 
 <script lang="ts">
-import DiscDestroyerWorld from '@/models/disc_destroyer/DiscDestroyerWorld';
-import Player from '@/models/disc_destroyer/Player';
+import DiscDestroyerWorld from './DiscDestroyerWorld';
+import GameStatePaused from './GameStatePaused';
+import Player from './Player';
 import Point from '@/models/Point';
 import Rect from '@/models/Rect';
 import ScreenCircle from '@/models/ScreenCircle';
 
 import { ref, watch, onMounted, onBeforeUnmount, Ref, reactive } from 'vue';
-import GameStatePaused from '@/models/disc_destroyer/GameStatePaused';
 
 export default {
   setup() {

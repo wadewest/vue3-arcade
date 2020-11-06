@@ -1,13 +1,12 @@
-import GameWorld from '../GameWorld';
-import IGameWorldState from '../IGameWorldState';
+import Color from '@/models/Color';
+import IGameWorldState from '@/models/IGameWorldState';
 import DiscDestroyerWorld from './DiscDestroyerWorld';
 
 export default class GameStatePaused implements IGameWorldState {
 
   world: DiscDestroyerWorld;
   old_state: IGameWorldState|null = null;
-  elapsed_time: number = 0;
-  wait_time: number = 5;
+  fill_color = new Color(127, 127, 127, 0.5);
 
   constructor(world:DiscDestroyerWorld) {
     this.world = world;
@@ -16,6 +15,11 @@ export default class GameStatePaused implements IGameWorldState {
 
   will_update(delta_time:number): boolean {
     return false;
+  }
+
+  did_draw(ctx:CanvasRenderingContext2D): void {
+    ctx.fillStyle = this.fill_color.rgba;
+    ctx.fillRect(0, 0, this.world.viewport.width, this.world.viewport.height);
   }
 
 }

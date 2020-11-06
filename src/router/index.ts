@@ -18,7 +18,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/games/discdestroyer',
     name: 'Disc Destroyer',
-    component: () => import('../views/DiscDestroyer.vue')
+    component: () => import('../games/disc_destroyer/DiscDestroyer.vue')
   },
   {
     path: '/demos/rectcollision',
