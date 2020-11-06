@@ -6,9 +6,9 @@ export default class GameWorld {
 
   sprites: Sprite[][] = [];
   last_time: number = 0;
-  width: number = 0;
-  height: number = 0;
-  viewport: Rect|null = null;
+  width: number;
+  height: number;
+  viewport: Rect;
   private _state: IGameWorldState|null = null;
 
   get state(): IGameWorldState|null {
@@ -19,6 +19,12 @@ export default class GameWorld {
   }
 
   get world_area():Rect { return new Rect(0, 0, this.width, this.height); }
+
+  constructor(width:number = 640, height:number = 480) {
+    this.width = width;
+    this.height = height;
+    this.viewport = new Rect(0, 0, width, height);
+  }
 
   before_draw: () => boolean = function(){return true;};
   after_draw: () => void = function(){};
@@ -37,6 +43,11 @@ export default class GameWorld {
       this.call_state_function('did_update', delta_time);
     }
     this.last_time = current_time;
+  }
+
+  setup(ctx:RenderingContext): void {
+    this.viewport.width = ctx.canvas.width;
+    this.viewport.height = ctx.canvas.height;
   }
 
   call_state_function(func_name:string, ...args:any[]): boolean|void {

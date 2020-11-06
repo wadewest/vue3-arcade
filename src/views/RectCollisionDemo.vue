@@ -29,8 +29,7 @@ class RectangleCollisionWorld extends GameWorld {
   get collisions(): ScreenRect[] { return this.sprites[1] as ScreenRect[]; }
 
   setup(ctx:RenderingContext): void {
-    this.width = 1200;
-    this.height = 800;
+    super.setup(ctx);
     this.sprites.push([]);
     this.sprites.push([]);
     this.sprites.push([]);
@@ -71,8 +70,8 @@ class RectangleCollisionWorld extends GameWorld {
     event.stopPropagation;
     const container = event.target as HTMLElement;
     const location = new Point(
-      event.pageX - container.offsetLeft + (this.viewport?.x || 0),
-      event.pageY - container.offsetTop + (this.viewport?.y || 0)
+      event.pageX - container.offsetLeft + this.viewport.x,
+      event.pageY - container.offsetTop + this.viewport.y
     );
     this.selected_rect = this.get_rect_at(location);
     const doc = this.get_root_node(container);
@@ -86,7 +85,7 @@ class RectangleCollisionWorld extends GameWorld {
     if(!!this.selected_rect) {
       this.selected_rect.location.x += event.movementX;
       this.selected_rect.location.y += event.movementY;
-    } else if(!!this.viewport) {
+    } else {
       this.viewport.x -= event.movementX;
       this.viewport.y -= event.movementY;
     }
