@@ -1,6 +1,7 @@
-import Sprite from '@/models/Sprite';
-import IGameWorldState from './IGameWorldState';
+import Sprite from './Sprite';
+import GameWorldState from './GameWorldState';
 import Rect from './Rect';
+import { GameStatus } from './GameStatus';
 
 export default class GameWorld {
 
@@ -9,14 +10,19 @@ export default class GameWorld {
   width: number;
   height: number;
   viewport: Rect;
-  private _state: IGameWorldState|null = null;
+  private _state: GameWorldState;
 
-  get state(): IGameWorldState|null {
+  get state(): GameWorldState {
     return this._state;
   }
-  set state(new_state:IGameWorldState|null) {
+  set state(new_state:GameWorldState) {
     this._state = new_state;
   }
+
+  get status(): GameStatus {
+    return this.state.game_status;
+  }
+
 
   get world_area():Rect { return new Rect(0, 0, this.width, this.height); }
 
@@ -24,6 +30,7 @@ export default class GameWorld {
     this.width = width;
     this.height = height;
     this.viewport = new Rect(0, 0, width, height);
+    this._state = new GameWorldState(this);
   }
 
   update(timestamp:number): void {
@@ -33,11 +40,11 @@ export default class GameWorld {
     }
     const current_time = timestamp;
     const delta_time = current_time - this.last_time;
-    if(this.call_state_function('will_update', delta_time)) { 
-      this.call_state_function('update_sprites', delta_time);
-      this.call_state_function('detect_collisions', delta_time);
-      this.call_state_function('sprite_cleanup', delta_time);
-      this.call_state_function('did_update', delta_time);
+    if(this.state.will_update(delta_time)) {
+      this.state.update_sprites(delta_time);
+      this.state.detect_collisions(delta_time);
+      this.state.sprite_cleanup(delta_time);
+      this.state.did_update(delta_time);
     }
     this.last_time = current_time;
   }
@@ -63,12 +70,12 @@ export default class GameWorld {
   }
 
   draw(ctx:CanvasRenderingContext2D): void {
-    this.call_state_function('translate_context', ctx);
-    if(this.call_state_function('will_draw', ctx)) {
-      this.call_state_function('draw_sprites', ctx);
-      this.call_state_function('did_draw', ctx);
+    this.state.translate_context(ctx);
+    if(this.state.will_draw(ctx)) {
+      this.state.draw_sprites(ctx);
+      this.state.did_draw(ctx);
     }
-    this.call_state_function('restore_context', ctx);
+    this.state.restore_context(ctx);
   }
 
   translate_context(ctx:CanvasRenderingContext2D): void {
@@ -89,18 +96,5 @@ export default class GameWorld {
   restore_context(ctx:CanvasRenderingContext2D): void {
     ctx.restore();
   }
-
-  call_state_function(func_name:string, ...args:any[]): boolean|void {
-    if(!!this.state && func_name in this.state) {
-      // @ts-ignore
-      return this.state[func_name](...args);
-    } else if(func_name in this) {
-      // @ts-ignore
-      return this[func_name](...args);
-    } else {
-      console.log("GameWorld or WorldState doesn't implement "+func_name);
-    }
-  }
-
 
 }
