@@ -5,6 +5,7 @@ import Sprite from '@/models/Sprite';
 import ScreenCircle from '@/models/ScreenCircle';
 import GameStatePaused from './GameStatePaused';
 import Player from './Player';
+import { GameStatus } from '@/models/GameStatus';
 
 export default class DiscDestroyerWorld extends GameWorld {
 
@@ -26,7 +27,7 @@ export default class DiscDestroyerWorld extends GameWorld {
   get particiles(): Sprite[] { return this.sprites[3] }
 
   get is_paused(): boolean {
-    return this.state !== null;
+    return this.status == GameStatus.Paused
   }
 
   will_update(delta_time:number): boolean {
@@ -63,7 +64,7 @@ export default class DiscDestroyerWorld extends GameWorld {
   }
 
   fire_projectile_to(location:Point): void {
-    if(!!this.state) return;
+    if(this.is_paused) return;
     const projectile = new ScreenCircle(
       this.player.location.copy(),
       null,
