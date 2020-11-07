@@ -19,6 +19,7 @@ import Rect from '@/models/Rect';
 import ScreenCircle from '@/models/ScreenCircle';
 
 import { ref, watch, onMounted, onBeforeUnmount, Ref, reactive } from 'vue';
+import GameWorldState from '@/models/GameWorldState';
 
 export default {
   setup() {
@@ -63,10 +64,10 @@ export default {
     }
 
     function toggle_pause() {
-      if(!game_world.state) {
+      if(game_world.is_paused) {
+        game_world.state = new GameWorldState(game_world);
+      } else {
         game_world.state = new GameStatePaused(game_world);
-      } else if(game_world.state.constructor === GameStatePaused) {
-        game_world.state = (game_world.state as GameStatePaused).old_state;
       }
     }
 

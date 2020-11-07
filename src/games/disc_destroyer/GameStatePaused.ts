@@ -1,16 +1,15 @@
 import Color from '@/models/Color';
-import IGameWorldState from '@/models/IGameWorldState';
-import DiscDestroyerWorld from './DiscDestroyerWorld';
+import { GameStatus } from '@/models/GameStatus';
+import GameWorld from '@/models/GameWorld';
+import GameWorldState from '@/models/GameWorldState';
 
-export default class GameStatePaused implements IGameWorldState {
+export default class GameStatePaused extends GameWorldState {
 
-  world: DiscDestroyerWorld;
-  old_state: IGameWorldState|null = null;
   fill_color = new Color(127, 127, 127, 0.5);
 
-  constructor(world:DiscDestroyerWorld) {
-    this.world = world;
-    this.old_state = world.state;
+  constructor(world:GameWorld) {
+    super(world);
+    this.status = GameStatus.Paused;
   }
 
   will_update(delta_time:number): boolean {
