@@ -7,11 +7,15 @@ import SpriteStateShrink from './SpriteStateShrink';
 
 export default class Enemy extends ScreenCircle {
 
-  health: number = 3;
-  speed: number = 10;
+  health: number;
+  speed: number;
 
   constructor(bounding_box:Rect) {
-    super(Point.origin, null, 20, bounding_box);
+    super(Point.origin, null, 0, bounding_box);
+    this.speed = 15+Math.floor(Math.random()*6);
+    this.health = 2+Math.floor(Math.random()*4);
+    this.radius = 5+this.health*5;
+    this.bounding_box = this.bounding_box.grow(this.radius*4, this.radius*4);
     this.teleport_to_random_border_location();
     this.move_to(this.bounding_box.center, this.speed);
   }

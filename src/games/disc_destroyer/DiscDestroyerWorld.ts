@@ -35,7 +35,7 @@ export default class DiscDestroyerWorld extends GameWorld {
   will_update(delta_time:number): boolean {
     if(Math.random()*1000 < this.spawn_rate) {
       const radius = Math.floor(Math.random()*15)+5
-      this.enemies.push(new Enemy(this.viewport.grow(80, 80)));
+      this.enemies.push(new Enemy(this.viewport));
     }
     return true;
   }
@@ -96,7 +96,9 @@ export default class DiscDestroyerWorld extends GameWorld {
   sprite_cleanup(delta_time:number): void {
     this.enemies.forEach(enemy => {
       if(enemy.status === SpriteStatus.Dead) {
-        this.player.score += Math.round(10*this.player.accuracy);
+        if(enemy.health <= 0) {
+          this.player.score += Math.round(10*this.player.accuracy);
+        }
         this.make_explosion(enemy.location.copy(), 75);
       }
     })
