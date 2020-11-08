@@ -35,7 +35,7 @@ export default class DiscDestroyerWorld extends GameWorld {
   will_update(delta_time:number): boolean {
     if(Math.random()*1000 < this.spawn_rate) {
       const radius = Math.floor(Math.random()*15)+5
-      this.enemies.push(new Enemy(this.viewport.grow(80, 80)));
+      this.enemies.push(new Enemy(this.viewport));
     }
     return true;
   }
