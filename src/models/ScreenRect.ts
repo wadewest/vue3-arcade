@@ -18,8 +18,7 @@ export default class ScreenRect extends Sprite {
     return Rect.centered_at(this.location, this.width, this.height);
   }
 
-  draw(ctx: CanvasRenderingContext2D): void {
-    if(!ctx || this.status === 'dead') return;
+  draw_sprite(ctx:CanvasRenderingContext2D): void {
     ctx.fillStyle = this.fill_color.rgba;
     ctx.fillRect(
       this.collision_box.x,

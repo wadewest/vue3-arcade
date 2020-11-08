@@ -5,11 +5,17 @@ import GameWorldState from '@/models/GameWorldState';
 
 export default class GameStatePaused extends GameWorldState {
 
+  old_state: GameWorldState;
   fill_color = new Color(127, 127, 127, 0.5);
 
   constructor(world:GameWorld) {
     super(world);
+    this.old_state = world.state;
     this.status = GameStatus.Paused;
+  }
+
+  work_complete(): void {
+    this.world.state = this.old_state;
   }
 
   will_update(delta_time:number): boolean {

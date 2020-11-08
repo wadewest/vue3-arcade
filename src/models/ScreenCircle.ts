@@ -16,16 +16,14 @@ export default class ScreenCircle extends Sprite {
     return Rect.centered_at(this.location, this.radius*2, this.radius*2);
   }
 
-  draw(ctx: CanvasRenderingContext2D): void {
-    if(!ctx || this.status === 'dead') return;
+  draw_sprite(ctx:CanvasRenderingContext2D): void {
     ctx.beginPath();
-    ctx.arc( this.location.x, this.location.y, 
-      this.radius, 0, 2*Math.PI, false);
+    ctx.arc(this.location.x, this.location.y, this.radius, 0, 2*Math.PI, false);
     ctx.fillStyle = this.fill_color.rgba;
     ctx.fill();
   }
 
-  move_to(p: Point, speed: number = 1): this {
+  move_to(p:Point, speed:number = 1): this {
     let atan2 = Math.atan2( 
       p.x - this.location.x,
       p.y - this.location.y
