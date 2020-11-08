@@ -96,7 +96,9 @@ export default class DiscDestroyerWorld extends GameWorld {
   sprite_cleanup(delta_time:number): void {
     this.enemies.forEach(enemy => {
       if(enemy.status === SpriteStatus.Dead) {
-        this.player.score += Math.round(10*this.player.accuracy);
+        if(enemy.health <= 0) {
+          this.player.score += Math.round(10*this.player.accuracy);
+        }
         this.make_explosion(enemy.location.copy(), 75);
       }
     })
