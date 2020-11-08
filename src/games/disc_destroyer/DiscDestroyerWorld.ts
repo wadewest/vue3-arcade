@@ -6,6 +6,8 @@ import ScreenCircle from '@/models/ScreenCircle';
 import { GameStatus } from '@/models/GameStatus';
 import GameStatePaused from './GameStatePaused';
 import Player from './Player';
+import Enemy from './Enemy';
+import { SpriteStatus } from '@/models/SpriteStatus';
 
 export default class DiscDestroyerWorld extends GameWorld {
 
@@ -23,7 +25,7 @@ export default class DiscDestroyerWorld extends GameWorld {
 
   get player(): Player { return this._player; }
   get projectiles(): Sprite[] { return this.sprites[1] }
-  get enemies(): Sprite[] { return this.sprites[2] }
+  get enemies(): Enemy[] { return this.sprites[2] as Enemy[]; }
   get explosions(): Sprite[] { return this.sprites[3] }
 
   get is_paused(): boolean {
@@ -33,16 +35,7 @@ export default class DiscDestroyerWorld extends GameWorld {
   will_update(delta_time:number): boolean {
     if(Math.random()*1000 < this.spawn_rate) {
       const radius = Math.floor(Math.random()*15)+5
-      this.enemies.push(
-        new ScreenCircle(
-          this.player.location.copy(),
-          null,
-          radius,
-          this.player.bounding_box.grow(radius*4, radius*4)
-        )
-        .teleport_to_random_border_location()
-        .move_to(this.player.location, 10+Math.random()*15)
-      );
+      this.enemies.push(new Enemy(this.viewport.grow(80, 80)));
     }
     return true;
   }
@@ -64,7 +57,7 @@ export default class DiscDestroyerWorld extends GameWorld {
   }
 
   fire_projectile_to(location:Point): void {
-    if(this.is_paused) return;
+    if(this.is_paused || this.projectiles.length >= 3) return;
     const projectile = new ScreenCircle(
       this.player.location.copy(),
       null,
@@ -81,8 +74,7 @@ export default class DiscDestroyerWorld extends GameWorld {
   }
 
   detect_collisions(delta_time:number): void {
-    this.enemies.forEach(e => {
-      const enemy = e as ScreenCircle;
+    this.enemies.forEach(enemy => {
       if(enemy.location.compare_distance(this.player.location, enemy.radius+this.player.radius) <= 0) {
         enemy.kill();
         this.player.health -= 1;
@@ -91,16 +83,24 @@ export default class DiscDestroyerWorld extends GameWorld {
       this.projectiles.forEach(p => {
         const projectile = p as ScreenCircle;
         if(enemy.location.compare_distance(projectile.location, enemy.radius+projectile.radius) <= 0) {
-          enemy.kill();
-          projectile.kill();
-          this.player.kills += 1;
+          enemy.take_damage();
+          this.player.hits += 1;
           this.player.update_accuracy_score();
-          this.player.score += Math.round(10*this.player.accuracy);
-          this.make_explosion(enemy.location.copy(), enemy.radius*enemy.radius);
+          projectile.kill();
           this.make_explosion(projectile.location.copy(), 25);
         }
       });
     });
+  }
+
+  sprite_cleanup(delta_time:number): void {
+    this.enemies.forEach(enemy => {
+      if(enemy.status === SpriteStatus.Dead) {
+        this.player.score += Math.round(10*this.player.accuracy);
+        this.make_explosion(enemy.location.copy(), 75);
+      }
+    })
+    super.sprite_cleanup(delta_time);
   }
 
   make_explosion(location:Point, particle_count:number = 100) {

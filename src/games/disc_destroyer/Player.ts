@@ -7,7 +7,7 @@ export default class Player extends ScreenCircle {
 
   health: number = 25;
   shots_fired: number = 0;
-  kills: number = 0;
+  hits: number = 0;
   private _accuracy: number = 1;
   private _score: number = 0;
 
@@ -18,7 +18,7 @@ export default class Player extends ScreenCircle {
 
   get accuracy(): number { return this._accuracy; }
   update_accuracy_score(): void {
-    this._accuracy = this.kills/this.shots_fired;
+    this._accuracy = this.hits/this.shots_fired;
   }
 
   get score(): number { return this._score; }
