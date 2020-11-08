@@ -14,6 +14,8 @@ export default class GameWorldState {
     return this.status;
   }
 
+  work_complete(): void {}
+
   will_update(delta_time:number): boolean {
     return this.world.will_update.call(this.world, delta_time);
   }

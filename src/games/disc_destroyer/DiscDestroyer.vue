@@ -65,7 +65,7 @@ export default {
 
     function toggle_pause() {
       if(game_world.is_paused) {
-        game_world.state = new GameWorldState(game_world);
+        game_world.state.work_complete();
       } else {
         game_world.state = new GameStatePaused(game_world);
       }
