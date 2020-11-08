@@ -1,12 +1,13 @@
 import Point from '@/models/Point';
 import Rect from '@/models/Rect';
+import { SpriteStatus } from './SpriteStatus';
 
 export default abstract class Sprite {
 
   location: Point;
   velocity: Point|null;
   bounding_box: Rect;
-  status: string = 'active';
+  status: SpriteStatus = SpriteStatus.Active;
 
   constructor(location:Point, velocity:Point|null, bounding_box:Rect) {
     this.location = location;
@@ -15,7 +16,7 @@ export default abstract class Sprite {
   }
 
   update(dt:number): void {
-    if(this.status === 'dead') return;
+    if(this.status === SpriteStatus.Dead) return;
       if(this.velocity != null) {
         this.location.x += this.velocity.x*dt;
         this.location.y += this.velocity.y*dt;
@@ -27,7 +28,7 @@ export default abstract class Sprite {
   }
 
   did_leave_bounding_box():void {
-    this.status = 'dead';
+    this.status = SpriteStatus.Dead;
   }
 
   is_in_bounds(): boolean {

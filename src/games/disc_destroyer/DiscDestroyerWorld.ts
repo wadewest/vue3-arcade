@@ -6,6 +6,7 @@ import ScreenCircle from '@/models/ScreenCircle';
 import GameStatePaused from './GameStatePaused';
 import Player from './Player';
 import { GameStatus } from '@/models/GameStatus';
+import { SpriteStatus } from '@/models/SpriteStatus';
 
 export default class DiscDestroyerWorld extends GameWorld {
 
@@ -73,7 +74,7 @@ export default class DiscDestroyerWorld extends GameWorld {
     )
     .move_to(location, 500);
     projectile.did_leave_bounding_box = () => {
-      projectile.status = 'dead';
+      projectile.status = SpriteStatus.Dead;
       this.player.update_accuracy_score()
     };
     this.projectiles.push(projectile);
@@ -84,15 +85,15 @@ export default class DiscDestroyerWorld extends GameWorld {
     this.enemies.forEach(e => {
       const enemy = e as ScreenCircle;
       if(enemy.location.compare_distance(this.player.location, enemy.radius+this.player.radius) <= 0) {
-        enemy.status = 'dead';
+        enemy.status = SpriteStatus.Dead;
         this.player.health -= 1;
         this.make_explosion(enemy.location.copy(), enemy.radius*enemy.radius);
       }
       this.projectiles.forEach(p => {
         const projectile = p as ScreenCircle;
         if(enemy.location.compare_distance(projectile.location, enemy.radius+projectile.radius) <= 0) {
-          enemy.status = 'dead';
-          projectile.status = 'dead';
+          enemy.status = SpriteStatus.Dead;
+          projectile.status = SpriteStatus.Dead;
           this.player.kills += 1;
           this.player.update_accuracy_score();
           this.player.score += Math.round(10*this.player.accuracy);
