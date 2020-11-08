@@ -3,10 +3,9 @@ import Point from '@/models/Point';
 import Rect from '@/models/Rect';
 import Sprite from '@/models/Sprite';
 import ScreenCircle from '@/models/ScreenCircle';
+import { GameStatus } from '@/models/GameStatus';
 import GameStatePaused from './GameStatePaused';
 import Player from './Player';
-import { GameStatus } from '@/models/GameStatus';
-import { SpriteStatus } from '@/models/SpriteStatus';
 
 export default class DiscDestroyerWorld extends GameWorld {
 
@@ -25,7 +24,7 @@ export default class DiscDestroyerWorld extends GameWorld {
   get player(): Player { return this._player; }
   get projectiles(): Sprite[] { return this.sprites[1] }
   get enemies(): Sprite[] { return this.sprites[2] }
-  get particiles(): Sprite[] { return this.sprites[3] }
+  get explosions(): Sprite[] { return this.sprites[3] }
 
   get is_paused(): boolean {
     return this.status == GameStatus.Paused
@@ -74,7 +73,7 @@ export default class DiscDestroyerWorld extends GameWorld {
     )
     .move_to(location, 500);
     projectile.did_leave_bounding_box = () => {
-      projectile.status = SpriteStatus.Dead;
+      projectile.kill();
       this.player.update_accuracy_score()
     };
     this.projectiles.push(projectile);
@@ -85,15 +84,15 @@ export default class DiscDestroyerWorld extends GameWorld {
     this.enemies.forEach(e => {
       const enemy = e as ScreenCircle;
       if(enemy.location.compare_distance(this.player.location, enemy.radius+this.player.radius) <= 0) {
-        enemy.status = SpriteStatus.Dead;
+        enemy.kill();
         this.player.health -= 1;
         this.make_explosion(enemy.location.copy(), enemy.radius*enemy.radius);
       }
       this.projectiles.forEach(p => {
         const projectile = p as ScreenCircle;
         if(enemy.location.compare_distance(projectile.location, enemy.radius+projectile.radius) <= 0) {
-          enemy.status = SpriteStatus.Dead;
-          projectile.status = SpriteStatus.Dead;
+          enemy.kill();
+          projectile.kill();
           this.player.kills += 1;
           this.player.update_accuracy_score();
           this.player.score += Math.round(10*this.player.accuracy);
@@ -121,7 +120,7 @@ export default class DiscDestroyerWorld extends GameWorld {
         ),
         50+(Math.random()*50)
       );
-      this.particiles.push(particle);
+      this.explosions.push(particle);
     }
   }
 

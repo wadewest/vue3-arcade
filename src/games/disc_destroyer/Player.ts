@@ -1,3 +1,6 @@
+import Color from '@/models/Color';
+import Point from '@/models/Point';
+import Rect from '@/models/Rect';
 import ScreenCircle from '@/models/ScreenCircle';
 
 export default class Player extends ScreenCircle {
@@ -7,6 +10,11 @@ export default class Player extends ScreenCircle {
   kills: number = 0;
   private _accuracy: number = 1;
   private _score: number = 0;
+
+  constructor(location:Point, bounding_box:Rect) {
+    super(location, null, 20, bounding_box);
+    this.fill_color = new Color(255, 255, 0, 1);
+  }
 
   get accuracy(): number { return this._accuracy; }
   update_accuracy_score(): void {

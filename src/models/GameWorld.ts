@@ -2,6 +2,7 @@ import Sprite from './Sprite';
 import GameWorldState from './GameWorldState';
 import Rect from './Rect';
 import { GameStatus } from './GameStatus';
+import { SpriteStatus } from './SpriteStatus';
 
 export default class GameWorld {
 
@@ -65,7 +66,7 @@ export default class GameWorld {
 
   sprite_cleanup(delta_time:number): void {
     for(let i = 0; i < this.sprites.length; i++) {
-      this.sprites[i] = this.sprites[i].filter(sprite => sprite.status !== 'dead');
+      this.sprites[i] = this.sprites[i].filter(sprite => sprite.status !== SpriteStatus.Dead);
     }
   }
 

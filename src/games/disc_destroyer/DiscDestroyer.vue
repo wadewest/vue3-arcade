@@ -27,7 +27,7 @@ export default {
     const game_canvas: Ref<HTMLCanvasElement|null> = ref(null);
 
     const screen_rect = new Rect(0, 0, 640, 480);
-    const player = reactive(new Player(screen_rect.midpoint(), null, 20, screen_rect.copy())) as Player;
+    const player = reactive(new Player(screen_rect.midpoint(), screen_rect.copy())) as Player;
     const game_world = reactive(new DiscDestroyerWorld(player)) as DiscDestroyerWorld;
 
     function screen_was_clicked(event:MouseEvent): void {
