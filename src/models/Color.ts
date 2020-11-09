@@ -29,4 +29,8 @@ export default class Color {
     return 'rgba('+this.red+','+this.green+','+this.blue+','+this.alpha+')'
   }
 
+  copy(): Color {
+    return new Color(this.red, this.green, this.blue, this.alpha);
+  }
+
 }
