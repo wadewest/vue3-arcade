@@ -1,5 +1,6 @@
 <template>
-  <div ref="game_container" class="game-content" >
+  <button class="btn btn-secondary" @click="toggle_pause">{{game_world.is_paused ? "Resume" : "Pause"}}</button>
+  <div ref="game_container" class="game-content mt-1" >
     <div class="overlay">
       <div>Health: {{player.health}}</div>
       <div>Score: {{player.score}}</div>
@@ -7,7 +8,6 @@
     </div>
     <canvas ref="game_canvas" />
   </div>
-  <button @click="toggle_pause">{{game_world.is_paused ? "Resume" : "Pause"}}</button>
 </template>
 
 <script lang="ts">

@@ -1,6 +1,6 @@
 <template>
-  <button @click="new_rectangle">Add Rectangle</button>
-  <div ref="game_container" class="game-content" >
+  <button class="btn btn-secondary" @click="new_rectangle">Add Rectangle</button>
+  <div ref="game_container" class="game-content mt-1" >
     <canvas width="640" height="480" />
   </div>
 </template>
