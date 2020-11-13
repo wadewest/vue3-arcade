@@ -1,3 +1,37 @@
 
 @import './variables';
 @import '@/../node_modules/bootstrap/scss/bootstrap.scss';
+
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  //text-align: center;
+  //color: #2c3e50;
+}
+
+.game-content {
+
+  width: fit-content;
+  margin: 0 auto;
+  user-select: none;
+
+  canvas {
+    position: relative;
+    background-color: black;
+  }
+
+  .overlay {
+    text-align: left;
+    cursor: default;
+    position: absolute;
+    color: white;
+    margin: 0.2rem;
+    z-index: 5;
+  }
+
+  .game-controls {
+    margin: 0.5rem 0px;
+  }
+
+}

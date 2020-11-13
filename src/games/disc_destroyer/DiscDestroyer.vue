@@ -1,12 +1,16 @@
 <template>
-  <button class="btn btn-secondary" @click="toggle_pause">{{game_world.is_paused ? "Resume" : "Pause"}}</button>
   <div ref="game_container" class="game-content mt-1" >
-    <div class="overlay">
-      <div>Health: {{player.health}}</div>
-      <div>Score: {{player.score}}</div>
-      <div>Accuracy: {{Math.floor(player.accuracy*100)}}%</div>
+    <div class="game-controls">
+      <button class="btn btn-secondary" @click="toggle_pause">{{game_world.is_paused ? "Resume" : "Pause"}}</button>
     </div>
-    <canvas ref="game_canvas" />
+    <div class="game-screen">
+      <div class="overlay">
+        <div>Health: {{player.health}}</div>
+        <div>Score: {{player.score}}</div>
+        <div>Accuracy: {{Math.floor(player.accuracy*100)}}%</div>
+      </div>
+      <canvas ref="game_canvas" />
+    </div>
   </div>
 </template>
 
@@ -48,7 +52,7 @@ export default {
     onMounted(init_game);
 
     function start_game(ctx:CanvasRenderingContext2D) {
-      game_container.value?.addEventListener('click', screen_was_clicked);
+      ctx.canvas.parentElement?.addEventListener('click', screen_was_clicked);
       setInterval(update, 0);
       draw(ctx);
     }
@@ -83,23 +87,5 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.game-content {
-  width: fit-content;
-  margin: 0 auto;
-  user-select: none;
-}
-
-canvas {
-  position: relative;
-  background-color: black;
-}
-
-.overlay {
-  text-align: left;
-  cursor: default;
-  position: absolute;
-  color: white;
-  margin: 0.2rem;
-  z-index: 5;
-}
+@import '@/assets/css/styles.scss';
 </style>
