@@ -24,7 +24,6 @@ export default class GameWorld {
     return this.state.game_status;
   }
 
-
   get world_area():Rect { return new Rect(0, 0, this.width, this.height); }
 
   constructor(width:number = 640, height:number = 480) {

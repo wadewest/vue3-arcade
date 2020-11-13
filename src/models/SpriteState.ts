@@ -17,27 +17,27 @@ export default class SpriteState {
   }
 
   will_update(delta_time:number): boolean {
-    return this.sprite.will_update.call(this.sprite, delta_time);
+    return this.sprite.will_update(delta_time);
   }
 
   add_velocity(delta_time:number) {
-    this.sprite.add_velocity.call(this.sprite, delta_time);
+    this.sprite.add_velocity(delta_time);
   }
 
   did_update(delta_time:number) {
-    this.sprite.did_update.call(this.sprite, delta_time);
+    this.sprite.did_update(delta_time);
   }
 
   will_draw(ctx:CanvasRenderingContext2D): boolean {
-    return this.sprite.will_draw.call(this.sprite, ctx);
+    return this.sprite.will_draw(ctx);
   }
 
   draw_sprite(ctx:CanvasRenderingContext2D) {
-    this.sprite.draw_sprite.call(this.sprite, ctx);
+    this.sprite.draw_sprite(ctx);
   }
 
   did_draw(ctx:CanvasRenderingContext2D) {
-    this.sprite.did_draw.call(this.sprite, ctx);
+    this.sprite.did_draw(ctx);
   }
 
 }
