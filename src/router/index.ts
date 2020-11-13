@@ -18,11 +18,19 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/games/discdestroyer',
     name: 'Disc Destroyer',
+    meta: { category: 'game' },
+    component: () => import('../games/disc_destroyer/DiscDestroyer.vue')
+  },
+  {
+    path: '/games/tetris',
+    name: 'Tetris',
+    meta: { category: 'game', hidden: true },
     component: () => import('../games/disc_destroyer/DiscDestroyer.vue')
   },
   {
     path: '/demos/rectcollision',
     name: 'Rectangle Collision',
+    meta: { category: 'demo' },
     component: () => import('../views/RectCollisionDemo.vue')
   },
 ]
