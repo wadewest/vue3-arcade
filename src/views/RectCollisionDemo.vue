@@ -1,7 +1,11 @@
 <template>
-  <button class="btn btn-secondary" @click="new_rectangle">Add Rectangle</button>
   <div ref="game_container" class="game-content mt-1" >
-    <canvas width="640" height="480" />
+    <div class="game-controls">
+      <button class="btn btn-secondary" @click="new_rectangle">Add Rectangle</button>
+    </div>
+    <div class="game-screen">
+      <canvas width="640" height="480" />
+    </div>
   </div>
 </template>
 

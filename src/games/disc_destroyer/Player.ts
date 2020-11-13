@@ -5,7 +5,7 @@ import ScreenCircle from '@/models/ScreenCircle';
 
 export default class Player extends ScreenCircle {
 
-  health: number = 25;
+  health: number = 5;
   shots_fired: number = 0;
   hits: number = 0;
   private _accuracy: number = 1;
@@ -14,6 +14,15 @@ export default class Player extends ScreenCircle {
   constructor(location:Point, bounding_box:Rect) {
     super(location, null, 20, bounding_box);
     this.fill_color = new Color(255, 255, 0, 1);
+    this.reset();
+  }
+
+  reset(): void {
+    this.health = 5;
+    this.shots_fired = 0;
+    this.hits = 0;
+    this._accuracy = 1;
+    this._score = 0;
   }
 
   get accuracy(): number { return this._accuracy; }

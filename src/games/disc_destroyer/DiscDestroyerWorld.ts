@@ -16,10 +16,7 @@ export default class DiscDestroyerWorld extends GameWorld {
   constructor(p:Player) {
     super();
     this._player = p;
-    this.sprites.push([this._player])
-    this.sprites.push([]);
-    this.sprites.push([]);
-    this.sprites.push([]);
+    this.reset()
   }
 
   get player(): Player { return this._player; }
@@ -29,6 +26,15 @@ export default class DiscDestroyerWorld extends GameWorld {
 
   get is_paused(): boolean {
     return this.status == GameStatus.Paused
+  }
+
+  reset(): void {
+    this.sprites.length = 0;
+    this.sprites.push([this._player])
+    this.sprites.push([]);
+    this.sprites.push([]);
+    this.sprites.push([]);
+    this.player.reset();
   }
 
   will_update(delta_time:number): boolean {
@@ -51,7 +57,6 @@ export default class DiscDestroyerWorld extends GameWorld {
     }
     if(this.player.health <= 0) {
       this.player.health = 0;
-      this.state = new GameStatePaused(this);
     }
   }
 

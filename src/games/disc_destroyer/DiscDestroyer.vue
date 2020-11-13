@@ -1,16 +1,55 @@
 <template>
-  <button class="btn btn-secondary" @click="toggle_pause">{{game_world.is_paused ? "Resume" : "Pause"}}</button>
   <div ref="game_container" class="game-content mt-1" >
-    <div class="overlay">
-      <div>Health: {{player.health}}</div>
-      <div>Score: {{player.score}}</div>
-      <div>Accuracy: {{Math.floor(player.accuracy*100)}}%</div>
+    <div class="game-controls">
+      <button class="btn btn-secondary" @click="toggle_pause">{{game_world.is_paused ? "Resume" : "Pause"}}</button>
     </div>
-    <canvas ref="game_canvas" />
+    <div class="game-screen">
+      <div class="overlay">
+        <div>Health: {{player.health}}</div>
+        <div>Score: {{player.score}}</div>
+        <div>Accuracy: {{Math.floor(player.accuracy*100)}}%</div>
+      </div>
+      <canvas ref="game_canvas" />
+    </div>
+    <div class="game-modal">
+      <div class="game-start-modal modal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Disc Destroyer</h5>
+            </div>
+            <div class="modal-body">
+              <p>Welcome to <em>Disc Destroyer</em>.  This game is still a work in progress. Continue at your own risk.</p>
+              <p><a href="https://github.com/wadewest/vue3-arcade/issues">Report Bugs</a></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" @click="start_game">Start Game</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="game-over-modal modal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Game Over</h5>
+            </div>
+            <div class="modal-body">
+              <h2>Your Score: {{game_world.player.score}}</h2>
+              <p>Would you like to play again?</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" @click="start_game">New Game</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
+import { Modal } from 'bootstrap';
 import DiscDestroyerWorld from './DiscDestroyerWorld';
 import GameStatePaused from './GameStatePaused';
 import Player from './Player';
@@ -20,6 +59,7 @@ import ScreenCircle from '@/models/ScreenCircle';
 
 import { ref, watch, onMounted, onBeforeUnmount, Ref, reactive } from 'vue';
 import GameWorldState from '@/models/GameWorldState';
+import { GameStatus } from '@/models/GameStatus';
 
 export default {
   setup() {
@@ -30,6 +70,18 @@ export default {
     const player = reactive(new Player(screen_rect.midpoint(), screen_rect.copy())) as Player;
     const game_world = reactive(new DiscDestroyerWorld(player)) as DiscDestroyerWorld;
 
+    const game_starting_state = new GameWorldState(game_world, GameStatus.Starting);
+    game_starting_state.will_update = () => false;
+    game_starting_state.will_draw = () => false;
+
+    const game_over_state = new GameWorldState(game_world, GameStatus.GameOver);
+
+
+    const modals = {
+      start_game: <Modal|null>null,
+      game_over: <Modal|null>null,
+    };
+
     function screen_was_clicked(event:MouseEvent): void {
       if(!game_canvas.value) return;
       game_world.fire_projectile_to(new Point(
@@ -39,18 +91,29 @@ export default {
     }
 
     function init_game(): void {
-      if(!game_canvas.value || !game_container.value) return;
+      if(!(game_canvas.value && game_container.value)) {
+        return;
+      }
+      const game_start_modal = (game_container.value.querySelector('.game-start-modal')) as Element;
+      modals.start_game = new Modal(game_start_modal, {backdrop: 'static'});
+      const game_over_modal = (game_container.value.querySelector('.game-over-modal')) as Element;
+      modals.game_over = new Modal(game_over_modal, {backdrop: 'static'});
       game_canvas.value.width = screen_rect.width;
       game_canvas.value.height = screen_rect.height;
+      game_world.state = game_starting_state;
       const ctx = game_canvas.value.getContext('2d') as CanvasRenderingContext2D;
-      start_game(ctx);
+      game_world.setup(ctx);
+      ctx.canvas.parentElement?.addEventListener('click', screen_was_clicked);
+      setInterval(update, 0);
+      draw(ctx);
     }
     onMounted(init_game);
 
-    function start_game(ctx:CanvasRenderingContext2D) {
-      game_container.value?.addEventListener('click', screen_was_clicked);
-      setInterval(update, 0);
-      draw(ctx);
+    function start_game() {
+      game_world.reset();
+      modals.start_game?.hide();
+      modals.game_over?.hide();
+      game_world.state = new GameWorldState(game_world);
     }
 
     function update() {
@@ -71,35 +134,36 @@ export default {
       }
     }
 
+    watch( () => game_world.state, (new_state, old_state) => {
+      modals.start_game?.hide();
+      modals.game_over?.hide();
+      switch(game_world.status) {
+        case GameStatus.Starting:
+          modals.start_game?.show();
+          break;
+        case GameStatus.GameOver:
+          modals.game_over?.show();
+      }
+    });
+
+    watch( () => game_world.player.health, (new_health, old_health) => {
+      if(new_health <= 0) game_world.state = game_over_state;
+    });
+
     return {
       player,
       game_world,
       game_container,
       game_canvas,
+      start_game,
       toggle_pause,
+      // @ts-ignore: Typescript doesn't like using const enums this way
+      GameStatus,
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
-.game-content {
-  width: fit-content;
-  margin: 0 auto;
-  user-select: none;
-}
-
-canvas {
-  position: relative;
-  background-color: black;
-}
-
-.overlay {
-  text-align: left;
-  cursor: default;
-  position: absolute;
-  color: white;
-  margin: 0.2rem;
-  z-index: 5;
-}
+@import '@/assets/css/styles.scss';
 </style>
