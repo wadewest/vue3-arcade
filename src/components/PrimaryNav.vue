@@ -7,12 +7,7 @@
       </button>
       <div class="collapse navbar-collapse" id="nav">
         <ul class="navbar-nav">
-          <li class="nav-item">
-            <router-link class="nav-link" to="/">Home</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="/about">About</router-link>
-          </li>
+          <NavLink @click="link_clicked" v-for="(link, index) in links" :link="link" :key="index"></NavLink>
         </ul>
       </div>
     </div>
@@ -20,18 +15,37 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref, Ref } from 'vue';
+import NavLink, { INavLinkInfo } from '@/components/NavLink.vue';
 
 export default defineComponent({
-
+  components: {
+    NavLink,
+  },
+  setup() {
+    const links: Ref<INavLinkInfo[]> = ref([
+      {href: '/', label: 'Home'},
+      {href: '/about', label: 'About'},
+    ]);
+    function link_clicked(event:MouseEvent): void {
+      const link = event.target as HTMLAnchorElement;
+      let nav_collapse = link.parentElement as HTMLElement;
+      while(!nav_collapse.classList.contains('navbar-collapse')) {
+        nav_collapse = nav_collapse.parentElement as HTMLElement;
+        if(nav_collapse.nodeName==='BODY') {
+          console.log("Didn't find nav element.")
+          return;
+        }
+      }
+      nav_collapse.classList.remove('show');
+    }
+    return{
+      links,
+      link_clicked,
+    }
+  },
 })
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/css/styles.scss";
-
-.nav-item a.nav-link.router-link-active {
-  color: $primary;
-}
-
 </style>
