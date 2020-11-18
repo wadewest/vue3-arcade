@@ -1,0 +1,2 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["about"],{f820:function(t,n,e){"use strict";e.r(n);var c=e("7a23"),o={class:"about"},u=Object(c["f"])("h1",null,"A Place to Play Around with Vuejs 3",-1);function a(t,n,e,a,s,r){return Object(c["p"])(),Object(c["d"])("div",o,[u])}const s={};s.render=a;n["default"]=s}}]);
+//# sourceMappingURL=about.ef03fddb.js.map
